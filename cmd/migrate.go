@@ -30,7 +30,11 @@ func resolveMigrationsDir() string {
 	if v := os.Getenv("GOCLAW_MIGRATIONS_DIR"); v != "" {
 		return v
 	}
-	// Default: ./migrations relative to the executable's working directory.
+	// Default: ./migrations relative to the current working directory (dev mode).
+	// Fall back to executable's directory for production builds.
+	if _, err := os.Stat("migrations"); err == nil {
+		return "migrations"
+	}
 	exe, err := os.Executable()
 	if err != nil {
 		return "migrations"

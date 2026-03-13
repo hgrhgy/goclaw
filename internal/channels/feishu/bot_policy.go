@@ -102,6 +102,8 @@ func (c *Channel) checkDMPolicy(senderID, chatID string) bool {
 		dmPolicy = "pairing"
 	}
 
+	slog.Info("feishu DM policy check", "policy", dmPolicy, "sender_id", senderID, "chat_id", chatID)
+
 	switch dmPolicy {
 	case "disabled":
 		slog.Debug("feishu DM rejected: disabled", "sender_id", senderID)

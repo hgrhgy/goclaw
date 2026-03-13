@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next";
 interface SetupStepperProps {
   currentStep: 1 | 2 | 3 | 4;
   completedSteps: number[];
+  onStepClick?: (step: number) => void;
 }
 
-export function SetupStepper({ currentStep, completedSteps }: SetupStepperProps) {
+export function SetupStepper({ currentStep, completedSteps, onStepClick }: SetupStepperProps) {
   const { t } = useTranslation("setup");
 
   const STEPS: { num: number; label: string; sublabel?: string }[] = [
@@ -21,6 +22,7 @@ export function SetupStepper({ currentStep, completedSteps }: SetupStepperProps)
       {STEPS.map((step, i) => {
         const isCompleted = completedSteps.includes(step.num);
         const isCurrent = step.num === currentStep;
+        const canClick = isCompleted && onStepClick;
 
         return (
           <div key={step.num} className="flex items-center">
@@ -33,7 +35,15 @@ export function SetupStepper({ currentStep, completedSteps }: SetupStepperProps)
                     : isCurrent
                       ? "border-2 border-primary bg-background text-primary"
                       : "border border-muted-foreground/30 bg-muted text-muted-foreground"
-                }`}
+                } ${canClick ? "cursor-pointer hover:opacity-80" : ""}`}
+                onClick={() => canClick && onStepClick(step.num)}
+                role={canClick ? "button" : undefined}
+                tabIndex={canClick ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (canClick && (e.key === "Enter" || e.key === " ")) {
+                    onStepClick(step.num);
+                  }
+                }}
               >
                 {isCompleted ? <Check className="h-4 w-4" /> : step.num}
               </div>

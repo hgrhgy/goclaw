@@ -150,7 +150,6 @@ func isNonChatModel(model string) bool {
 // Raw errors often contain JSON blobs like: `HTTP 400: minimax: {"type":"error","error":{"type":"bad_request_error","message":"unknown model ..."}}`
 func friendlyVerifyError(err error) string {
 	msg := err.Error()
-
 	// Try to extract "message" field from embedded JSON
 	if idx := strings.Index(msg, `"message"`); idx >= 0 {
 		// Find the value after "message":

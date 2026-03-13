@@ -58,12 +58,21 @@ export function SetupPage() {
 
   const handleFinish = () => setShowComplete(true);
 
+  const goBack = () => {
+    if (step > 1) {
+      setStep((s) => (s - 1) as 1 | 2 | 3 | 4);
+    }
+  };
+
   return (
     <SetupLayout>
-      <SetupStepper currentStep={step} completedSteps={completedSteps} />
+      <SetupStepper currentStep={step} completedSteps={completedSteps} onStepClick={(s) => {
+        if (s < step) setStep(s as 1 | 2 | 3 | 4);
+      }} />
 
       {step === 1 && (
         <StepProvider
+          providers={providers}
           onComplete={(provider) => {
             setCreatedProvider(provider);
             setStep(2);
@@ -78,6 +87,7 @@ export function SetupPage() {
             setSelectedModel(model);
             setStep(3);
           }}
+          onBack={goBack}
         />
       )}
 
@@ -89,6 +99,7 @@ export function SetupPage() {
             setCreatedAgent(agent);
             setStep(4);
           }}
+          onBack={goBack}
         />
       )}
 
@@ -97,6 +108,7 @@ export function SetupPage() {
           agent={activeAgent}
           onComplete={handleFinish}
           onSkip={handleFinish}
+          onBack={goBack}
         />
       )}
 

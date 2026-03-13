@@ -31,8 +31,13 @@
     "create": "Create Provider",
     "errors": {
       "apiKeyRequired": "API key is required",
-      "failedCreate": "Failed to create provider"
-    }
+      "failedCreate": "Failed to create provider",
+      "duplicateName": "A provider with this name already exists"
+    },
+    "duplicateFound": "Provider \"{{name}}\" already exists",
+    "useExisting": "Use Existing",
+    "updateExisting": "Update It",
+    "createNew": "Create New"
   },
   "model": {
     "title": "Select & Verify Model",

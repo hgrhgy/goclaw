@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/mattn/go-runewidth v0.0.16
-	github.com/mymmrac/telego v1.6.0
+	github.com/mymmrac/telego v1.7.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/slack-go/slack v0.19.0
 	github.com/spf13/cobra v1.10.2
@@ -137,7 +137,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0 // indirect
-	github.com/valyala/fastjson v1.6.7 // indirect
+	github.com/valyala/fastjson v1.6.10 // indirect
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.40.0 // indirect

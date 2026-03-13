@@ -31,8 +31,13 @@
     "create": "创建Provider",
     "errors": {
       "apiKeyRequired": "API 密钥为必填项",
-      "failedCreate": "创建Provider失败"
-    }
+      "failedCreate": "创建Provider失败",
+      "duplicateName": "同名Provider已存在"
+    },
+    "duplicateFound": "Provider \"{{name}}\" 已存在",
+    "useExisting": "使用现有",
+    "updateExisting": "更新现有",
+    "createNew": "创建新的"
   },
   "model": {
     "title": "选择并验证模型",

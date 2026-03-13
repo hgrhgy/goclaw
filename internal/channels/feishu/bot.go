@@ -33,6 +33,8 @@ type mentionInfo struct {
 
 // handleMessageEvent processes an incoming Feishu message event.
 func (c *Channel) handleMessageEvent(ctx context.Context, event *MessageEvent) {
+	slog.Info("feishu handleMessageEvent called", "event", event)
+
 	if event == nil {
 		return
 	}

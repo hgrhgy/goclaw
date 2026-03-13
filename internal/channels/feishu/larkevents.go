@@ -86,6 +86,7 @@ type webhookEvent struct {
 // Supports: URL verification challenge, event decryption, and message dispatch.
 func NewWebhookHandler(verificationToken, encryptKey string, onMessage func(event *MessageEvent)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("feishu webhook received", "method", r.Method, "path", r.URL.Path)
 		if r.Method != "POST" {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
@@ -93,9 +94,11 @@ func NewWebhookHandler(verificationToken, encryptKey string, onMessage func(even
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
+			slog.Error("feishu webhook read body failed", "error", err)
 			http.Error(w, "read body failed", http.StatusBadRequest)
 			return
 		}
+		slog.Info("feishu webhook body", "body_len", len(body), "body", string(body[:min(len(body), 500)]))
 
 		// Try to decrypt if encrypted
 		var envelope webhookEvent
@@ -120,7 +123,8 @@ func NewWebhookHandler(verificationToken, encryptKey string, onMessage func(even
 		}
 
 		// URL verification challenge
-		if envelope.Type == "url_verification" {
+		// Feishu sends either {"type":"url_verification", "challenge":"xxx"} (v1.0) or just {"challenge":"xxx"} (verification request)
+		if envelope.Type == "url_verification" || envelope.Challenge != "" {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]string{"challenge": envelope.Challenge})
 			return
@@ -145,13 +149,18 @@ func NewWebhookHandler(verificationToken, encryptKey string, onMessage func(even
 
 		// Verify token if configured
 		if verificationToken != "" && event.Header.Token != verificationToken {
-			slog.Warn("feishu webhook token mismatch")
+			slog.Warn("feishu webhook token mismatch", "expected", verificationToken, "got", event.Header.Token)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
+		// Debug: print full event JSON
+		eventJSON, _ := json.Marshal(event)
+		slog.Info("feishu webhook event", "event_type", event.Header.EventType, "has_token", event.Header.Token != "", "sender_open_id", event.Event.Sender.SenderID.OpenID, "chat_id", event.Event.Message.ChatID, "chat_type", event.Event.Message.ChatType, "full_event", string(eventJSON))
+
 		// Only handle message events
 		if event.Header.EventType == "im.message.receive_v1" {
+			slog.Info("feishu webhook dispatching message event")
 			go onMessage(&event)
 		}
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -15,15 +15,23 @@ import type { ProviderData } from "@/types/provider";
 interface StepModelProps {
   provider: ProviderData;
   onComplete: (model: string) => void;
+  onBack?: () => void;
 }
 
-export function StepModel({ provider, onComplete }: StepModelProps) {
+export function StepModel({ provider, onComplete, onBack }: StepModelProps) {
   const { t } = useTranslation("setup");
   const { models, loading: modelsLoading } = useProviderModels(provider.id, provider.provider_type);
   const { verify, verifying, result: verifyResult, reset: resetVerify } = useProviderVerify();
 
-  const [model, setModel] = useState("");
+  const [displayModel, setDisplayModel] = useState("");
   const [error, setError] = useState("");
+
+  // Use displayModel for display, but keep original value for API calls
+  const model = useMemo(() => {
+    // If there's a matching option, use its value
+    const match = models.find((m) => m.id === displayModel || m.name === displayModel);
+    return match?.id || displayModel;
+  }, [displayModel, models]);
 
   // Reset verification when model changes
   useEffect(() => { resetVerify(); setError(""); }, [model, resetVerify]);
@@ -64,8 +72,8 @@ export function StepModel({ provider, onComplete }: StepModelProps) {
               <InfoTip text={t("model.modelHint")} />
             </Label>
             <Combobox
-              value={model}
-              onChange={setModel}
+              value={displayModel}
+              onChange={setDisplayModel}
               options={models.map((m) => ({ value: m.id, label: m.name || m.id }))}
               placeholder={modelsLoading ? t("model.loadingModels") : t("model.selectModel")}
             />
@@ -90,17 +98,24 @@ export function StepModel({ provider, onComplete }: StepModelProps) {
             </div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={handleVerify}
-              disabled={!model.trim() || verifying || isVerified}
-            >
-              {verifying ? t("model.verifying") : isVerified ? t("model.verified") : t("model.verify")}
-            </Button>
-            <Button onClick={() => onComplete(model.trim())} disabled={!isVerified}>
-              {t("model.continue")}
-            </Button>
+          <div className="flex justify-between gap-2">
+            {onBack && (
+              <Button variant="outline" onClick={onBack}>
+                {t("common.back")}
+              </Button>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <Button
+                variant="outline"
+                onClick={handleVerify}
+                disabled={!model.trim() || verifying || isVerified}
+              >
+                {verifying ? t("model.verifying") : isVerified ? t("model.verified") : t("model.verify")}
+              </Button>
+              <Button onClick={() => onComplete(model.trim())} disabled={!isVerified}>
+                {t("model.continue")}
+              </Button>
+            </div>
           </div>
         </TooltipProvider>
       </CardContent>

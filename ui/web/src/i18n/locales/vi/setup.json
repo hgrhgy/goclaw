@@ -31,8 +31,13 @@
     "create": "Tạo provider",
     "errors": {
       "apiKeyRequired": "API key là bắt buộc",
-      "failedCreate": "Không thể tạo provider"
-    }
+      "failedCreate": "Không thể tạo provider",
+      "duplicateName": "Provider cùng tên đã tồn tại"
+    },
+    "duplicateFound": "Provider \"{{name}}\" đã tồn tại",
+    "useExisting": "Dùng hiện có",
+    "updateExisting": "Cập nhật",
+    "createNew": "Tạo mới"
   },
   "model": {
     "title": "Chọn & xác minh Model",

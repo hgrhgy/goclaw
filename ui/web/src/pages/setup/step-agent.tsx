@@ -23,9 +23,10 @@ interface StepAgentProps {
   provider: ProviderData | null;
   model: string | null;
   onComplete: (agent: AgentData) => void;
+  onBack?: () => void;
 }
 
-export function StepAgent({ provider, model, onComplete }: StepAgentProps) {
+export function StepAgent({ provider, model, onComplete, onBack }: StepAgentProps) {
   const { t } = useTranslation("setup");
   const { createAgent, deleteAgent, resummonAgent } = useAgents();
 
@@ -214,10 +215,16 @@ export function StepAgent({ provider, model, onComplete }: StepAgentProps) {
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              {onBack && (
+                <Button variant="outline" onClick={onBack}>
+                  {t("common.back")}
+                </Button>
+              )}
               <Button
                 onClick={handleCreate}
                 disabled={loading || !agentKey.trim() || !isValidSlug(agentKey) || !description.trim()}
+                className={onBack ? "ml-auto" : ""}
               >
                 {loading ? t("agent.creating") : t("agent.create")}
               </Button>

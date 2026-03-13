@@ -18,6 +18,7 @@ const (
 	ProviderMistral         = "mistral"
 	ProviderXAI             = "xai"
 	ProviderMiniMax         = "minimax_native"
+	ProviderMiniMaxCN       = "minimax_cn"
 	ProviderCohere          = "cohere"
 	ProviderPerplexity      = "perplexity"
 	ProviderDashScope       = "dashscope"
@@ -43,6 +44,7 @@ var ValidProviderTypes = map[string]bool{
 	ProviderMistral:         true,
 	ProviderXAI:             true,
 	ProviderMiniMax:         true,
+	ProviderMiniMaxCN:       true,
 	ProviderCohere:          true,
 	ProviderPerplexity:      true,
 	ProviderDashScope:       true,

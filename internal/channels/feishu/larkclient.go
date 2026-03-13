@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -33,6 +34,7 @@ type LarkClient struct {
 
 // NewLarkClient creates a native Lark HTTP client.
 func NewLarkClient(appID, appSecret, baseURL string) *LarkClient {
+	slog.Info("NewLarkClient created", "app_id", appID, "base_url", baseURL)
 	return &LarkClient{
 		baseURL:    baseURL,
 		appID:      appID,

@@ -14,7 +14,8 @@ export function useBootstrapStatus() {
   const loading = providersLoading || agentsLoading || !connected;
 
   const { needsSetup, currentStep } = useMemo(() => {
-    if (loading) return { needsSetup: false, currentStep: "complete" as SetupStep };
+    // Don't determine step while loading - return default step 1
+    if (loading) return { needsSetup: true, currentStep: 1 as SetupStep };
 
     // A provider is "configured" if enabled + has an API key set (masked as "***")
     // Claude CLI, ChatGPT OAuth, and local Ollama don't require API keys — check type instead

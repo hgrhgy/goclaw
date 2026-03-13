@@ -117,7 +117,7 @@ func (h *ProvidersHandler) registerInMemory(p *store.LLMProviderData) {
 		h.providerReg.Register(providers.NewOpenAIProvider(p.Name, p.APIKey, base, "qwen3.5-plus"))
 	default:
 		prov := providers.NewOpenAIProvider(p.Name, p.APIKey, p.APIBase, "")
-		if p.ProviderType == store.ProviderMiniMax {
+		if p.ProviderType == store.ProviderMiniMax || p.ProviderType == store.ProviderMiniMaxCN {
 			prov.WithChatPath("/text/chatcompletion_v2")
 		}
 		h.providerReg.Register(prov)
@@ -284,7 +284,14 @@ func (h *ProvidersHandler) handleUpdateProvider(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
+	// Return the updated provider
+	updated, err := h.store.GetProvider(r.Context(), id)
+	if err != nil {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
+		return
+	}
+	maskAPIKey(updated)
+	writeJSON(w, http.StatusOK, updated)
 }
 
 func (h *ProvidersHandler) handleDeleteProvider(w http.ResponseWriter, r *http.Request) {

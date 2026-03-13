@@ -64,7 +64,7 @@ func (h *ProvidersHandler) handleListProviderModels(w http.ResponseWriter, r *ht
 		models = bailianModels()
 	case "dashscope":
 		models = dashScopeModels()
-	case "minimax_native":
+	case "minimax_native", "minimax_cn":
 		models = minimaxModels()
 	case "suno":
 		models = sunoModels()

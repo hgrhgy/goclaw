@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"strconv"
 )
 
@@ -187,20 +188,47 @@ func (c *LarkClient) DeleteMessageReaction(ctx context.Context, messageID, react
 
 // GetBotInfo fetches the bot's identity from /open-apis/bot/v3/info.
 // Returns the bot's open_id which is needed for mention detection in groups.
+// Note: Bot API returns {"code":0,"msg":"ok","bot":{...}} - NOT wrapped in "data" field.
 func (c *LarkClient) GetBotInfo(ctx context.Context) (string, error) {
-	resp, err := c.doJSON(ctx, "GET", "/open-apis/bot/v3/info", nil)
+	slog.Info("GetBotInfo: calling API", "app_id", c.appID)
+	token, err := c.getToken(ctx)
 	if err != nil {
 		return "", err
 	}
-	if resp.Code != 0 {
-		return "", fmt.Errorf("get bot info: code=%d msg=%s", resp.Code, resp.Msg)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+"/open-apis/bot/v3/info", nil)
+	if err != nil {
+		return "", err
 	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		slog.Error("GetBotInfo API error", "error", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// Parse the response directly - bot API returns {"code":0,"msg":"ok","bot":{...}}
 	var result struct {
-		Bot struct {
+		Code    int    `json:"code"`
+		Msg     string `json:"msg"`
+		Bot     struct {
 			OpenID string `json:"open_id"`
 		} `json:"bot"`
 	}
-	json.Unmarshal(resp.Data, &result)
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		slog.Error("GetBotInfo decode error", "error", err)
+		return "", fmt.Errorf("decode bot info: %w", err)
+	}
+
+	slog.Info("GetBotInfo response", "code", result.Code, "msg", result.Msg, "open_id", result.Bot.OpenID)
+
+	if result.Code != 0 {
+		slog.Error("GetBotInfo failed", "code", result.Code, "msg", result.Msg)
+		return "", fmt.Errorf("get bot info: code=%d msg=%s", result.Code, result.Msg)
+	}
+
 	return result.Bot.OpenID, nil
 }
 

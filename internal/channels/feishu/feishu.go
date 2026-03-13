@@ -156,7 +156,35 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 	}
 
 	// Determine receive_id_type
-	receiveIDType := resolveReceiveIDType(chatID)
+	// For P2P chats, use sender's open_id; for groups, use chat_id
+	receiveIDType := "chat_id"
+	receiveID := chatID
+
+	// Debug: log metadata
+	slog.Info("feishu Send: debug", "chatID", chatID, "metadata", msg.Metadata, "metadata_len", len(msg.Metadata))
+
+	// Check metadata for chat_type and sender info
+	if len(msg.Metadata) > 0 {
+		chatType := msg.Metadata["chat_type"]
+		senderOpenID := msg.Metadata["sender_open_id"]
+		slog.Info("feishu Send: metadata check", "chat_type", chatType, "sender_open_id", senderOpenID)
+
+		if chatType == "p2p" && senderOpenID != "" {
+			// For P2P, send to user's open_id
+			receiveIDType = "open_id"
+			receiveID = senderOpenID
+			slog.Info("feishu send: using open_id for P2P", "sender_open_id", senderOpenID)
+		}
+	} else if strings.HasPrefix(chatID, "ou_") {
+		// Fallback: if chat_id looks like user open_id (starts with ou_)
+		receiveIDType = "open_id"
+		receiveID = chatID
+		slog.Info("feishu send: using open_id fallback", "chatID", chatID)
+	} else if strings.HasPrefix(chatID, "oc_") {
+		// Group chat
+		receiveIDType = "chat_id"
+		receiveID = chatID
+	}
 
 	// Send text content
 	text := msg.Content
@@ -181,11 +209,11 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 		}
 
 		if useCard {
-			if err := c.sendMarkdownCard(ctx, chatID, receiveIDType, text, nil); err != nil {
+			if err := c.sendMarkdownCard(ctx, receiveID, receiveIDType, text, nil); err != nil {
 				return err
 			}
 		} else {
-			if err := c.sendChunkedText(ctx, chatID, receiveIDType, text, chunkLimit); err != nil {
+			if err := c.sendChunkedText(ctx, receiveID, receiveIDType, text, chunkLimit); err != nil {
 				return err
 			}
 		}
@@ -193,7 +221,7 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 
 	// Send media attachments
 	for _, media := range msg.Media {
-		if err := c.sendMediaAttachment(ctx, chatID, receiveIDType, media); err != nil {
+		if err := c.sendMediaAttachment(ctx, receiveID, receiveIDType, media); err != nil {
 			slog.Warn("feishu send media failed", "url", media.URL, "error", err)
 		}
 	}
@@ -333,12 +361,15 @@ func (c *Channel) sendChunkedText(ctx context.Context, chatID, receiveIDType, te
 }
 
 func (c *Channel) sendText(ctx context.Context, chatID, receiveIDType, text string) error {
+	slog.Info("feishu sendText called", "chat_id", chatID, "receive_id_type", receiveIDType, "text_len", len(text))
 	content := buildPostContent(text)
 
 	_, err := c.client.SendMessage(ctx, receiveIDType, chatID, "post", content)
 	if err != nil {
+		slog.Error("feishu sendText failed", "error", err)
 		return fmt.Errorf("feishu send text: %w", err)
 	}
+	slog.Info("feishu sendText success", "chat_id", chatID)
 	return nil
 }
 

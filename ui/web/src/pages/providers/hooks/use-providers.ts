@@ -45,11 +45,12 @@ export function useProviders() {
   );
 
   const updateProvider = useCallback(
-    async (id: string, data: Partial<ProviderInput>) => {
+    async (id: string, data: Partial<ProviderInput>): Promise<ProviderData> => {
       try {
-        await http.put(`/v1/providers/${id}`, data);
+        const res = await http.put<ProviderData>(`/v1/providers/${id}`, data);
         await invalidate();
         toast.success(i18next.t("providers:toast.updated"));
+        return res;
       } catch (err) {
         toast.error(i18next.t("providers:toast.failedUpdate"), err instanceof Error ? err.message : "");
         throw err;

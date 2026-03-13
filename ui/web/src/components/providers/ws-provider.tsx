@@ -9,8 +9,25 @@ import { TEAM_RELATED_EVENTS } from "@/api/protocol";
 import { useTeamEventStore } from "@/stores/use-team-event-store";
 
 // In dev mode, connect directly to backend WS (bypass Vite proxy).
-// In production, use relative "/ws" path.
-const WS_URL = import.meta.env.VITE_WS_URL || "/ws";
+// In production, use relative "/ws" path or configured VITE_API_URL.
+// VITE_API_URL: Full backend URL including protocol, IP and port (e.g., "http://localhost:18790" or "http://192.168.1.100:18790")
+// VITE_WS_URL: WebSocket URL - can be absolute (ws://host:port/path) or relative (/ws)
+// If VITE_API_URL is set, WebSocket URL will be automatically derived from it
+const API_URL = import.meta.env.VITE_API_URL || "";
+function getWsUrl(): string {
+  const envWsUrl = import.meta.env.VITE_WS_URL;
+  if (envWsUrl) {
+    return envWsUrl;
+  }
+  if (API_URL) {
+    // Derive WebSocket URL from API_URL
+    const proto = API_URL.startsWith("https") ? "wss" : "ws";
+    const hostPort = API_URL.replace(/^https?:\/\//, "");
+    return `${proto}://${hostPort}/ws`;
+  }
+  return "/ws";
+}
+const WS_URL = getWsUrl();
 
 export function WsProvider({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -38,7 +55,7 @@ export function WsProvider({ children }: { children: React.ReactNode }) {
 
   const http = useMemo(() => {
     const client = new HttpClient(
-      "",
+      API_URL,
       () => useAuthStore.getState().token,
       () => useAuthStore.getState().userId,
     );

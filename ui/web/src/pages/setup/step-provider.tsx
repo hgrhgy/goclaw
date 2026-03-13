@@ -20,19 +20,40 @@ import { slugify } from "@/lib/slug";
 import type { ProviderData } from "@/types/provider";
 
 interface StepProviderProps {
+  providers?: ProviderData[];
   onComplete: (provider: ProviderData) => void;
+  onBack?: () => void;
 }
 
-export function StepProvider({ onComplete }: StepProviderProps) {
+export function StepProvider({ providers = [], onComplete, onBack }: StepProviderProps) {
   const { t } = useTranslation("setup");
-  const { createProvider } = useProviders();
+  const { createProvider, updateProvider } = useProviders();
 
   const [providerType, setProviderType] = useState("openrouter");
-  const [name, setName] = useState("openrouter");
+  const [displayName, setDisplayName] = useState("openrouter");
   const [apiKey, setApiKey] = useState("");
   const [apiBase, setApiBase] = useState("https://openrouter.ai/api/v1");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [duplicateMode, setDuplicateMode] = useState<"create" | "use" | "update" | null>(null);
+  // Track if user chose to create new (ignore duplicate)
+  const [ignoreDuplicate, setIgnoreDuplicate] = useState(false);
+
+  // Slugified name for API
+  const name = useMemo(() => slugify(displayName), [displayName]);
+
+  // Find existing provider with same name (skip if user chose to create new)
+  const existingProvider = useMemo(
+    () => ignoreDuplicate ? null : providers.find((p) => slugify(p.name) === name && name.trim() !== ""),
+    [providers, name, ignoreDuplicate],
+  );
+
+  // When user manually changes displayName, reset ignoreDuplicate to re-check
+  const handleDisplayNameChange = (value: string) => {
+    setDisplayName(value);
+    setIgnoreDuplicate(false);
+    setError("");
+  };
 
   const isCLI = providerType === "claude_cli";
   // Local Ollama uses no API key — the server accepts any non-empty Bearer value internally
@@ -41,10 +62,12 @@ export function StepProvider({ onComplete }: StepProviderProps) {
   const handleTypeChange = (value: string) => {
     setProviderType(value);
     const preset = PROVIDER_TYPES.find((t) => t.value === value);
-    setName(slugify(value));
+    setDisplayName(value);
     setApiBase(preset?.apiBase || "");
     setApiKey("");
     setError("");
+    setDuplicateMode(null);
+    setIgnoreDuplicate(false);
   };
 
   const apiBasePlaceholder = useMemo(
@@ -56,6 +79,41 @@ export function StepProvider({ onComplete }: StepProviderProps) {
 
   const handleCreate = async () => {
     if (!isCLI && !isOllama && !apiKey.trim()) { setError(t("provider.errors.apiKeyRequired")); return; }
+
+    // Check for duplicate
+    if (existingProvider && !ignoreDuplicate) {
+      if (duplicateMode === "use") {
+        onComplete(existingProvider);
+        return;
+      }
+      if (duplicateMode === "update") {
+        setLoading(true);
+        setError("");
+        try {
+          const updated = await updateProvider(existingProvider.id, {
+            provider_type: providerType,
+            api_base: apiBase.trim() || undefined,
+            api_key: isCLI || isOllama ? undefined : apiKey.trim(),
+            enabled: true,
+          });
+          onComplete(updated);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t("provider.errors.failedCreate"));
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+      if (duplicateMode === "create") {
+        // User chose to create new anyway - proceed
+      } else {
+        // First time detecting duplicate - show options to user
+        setDuplicateMode("create");
+        setError(t("provider.errors.duplicateName"));
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
     try {
@@ -68,10 +126,28 @@ export function StepProvider({ onComplete }: StepProviderProps) {
       }) as ProviderData;
       onComplete(provider);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("provider.errors.failedCreate"));
+      // Check if it's a duplicate error
+      const errMsg = err instanceof Error ? err.message : "";
+      if (errMsg.includes("duplicate key") || errMsg.includes("unique constraint")) {
+        setDuplicateMode("create");
+        setError(t("provider.errors.duplicateName"));
+      } else {
+        setError(errMsg || t("provider.errors.failedCreate"));
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUseExisting = () => {
+    if (existingProvider) {
+      onComplete(existingProvider);
+    }
+  };
+
+  const handleUpdateExisting = () => {
+    setDuplicateMode("update");
+    setError("");
   };
 
   return (
@@ -107,7 +183,7 @@ export function StepProvider({ onComplete }: StepProviderProps) {
                 {t("provider.name")}
                 <InfoTip text={t("provider.nameHint")} />
               </Label>
-              <Input value={name} onChange={(e) => setName(slugify(e.target.value))} />
+              <Input value={displayName} onChange={(e) => handleDisplayNameChange(e.target.value)} />
             </div>
           </div>
 
@@ -144,10 +220,37 @@ export function StepProvider({ onComplete }: StepProviderProps) {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="flex justify-end">
-            <Button onClick={handleCreate} disabled={loading || (!isCLI && !isOllama && !apiKey.trim())}>
-              {loading ? t("provider.creating") : t("provider.create")}
-            </Button>
+          {/* Duplicate provider options */}
+          {duplicateMode && existingProvider && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950">
+              <p className="mb-2 text-sm font-medium text-amber-700 dark:text-amber-300">
+                {t("provider.duplicateFound", { name: existingProvider.name })}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={handleUseExisting}>
+                  {t("provider.useExisting")}
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleUpdateExisting}>
+                  {t("provider.updateExisting")}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setDuplicateMode(null); setIgnoreDuplicate(true); setError(""); }}>
+                  {t("provider.createNew")}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            {onBack && (
+              <Button variant="outline" onClick={onBack}>
+                {t("common.back")}
+              </Button>
+            )}
+            {!duplicateMode && (
+              <Button onClick={handleCreate} disabled={loading || (!isCLI && !isOllama && !apiKey.trim())} className={onBack ? "" : "ml-auto"}>
+                {loading ? t("provider.creating") : t("provider.create")}
+              </Button>
+            )}
           </div>
         </TooltipProvider>
       </CardContent>

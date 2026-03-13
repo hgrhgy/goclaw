@@ -8,7 +8,7 @@ build:
 	CGO_ENABLED=0 go build -ldflags="$(LDFLAGS)" -o $(BINARY) .
 
 run: build
-	./$(BINARY)
+	source .env.local && ./$(BINARY)
 
 clean:
 	rm -f $(BINARY)
