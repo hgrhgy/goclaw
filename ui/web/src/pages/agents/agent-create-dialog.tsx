@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -46,8 +46,10 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
   const [selfEvolve, setSelfEvolve] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const portalRef = useRef<HTMLDivElement>(null);
 
   const enabledProviders = providers.filter((p) => p.enabled);
+  console.log('[AgentCreateDialog] enabledProviders:', enabledProviders, 'selected provider:', provider);
 
   // Look up provider ID from selected provider name for model fetching
   const selectedProvider = useMemo(
@@ -55,7 +57,9 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
     [enabledProviders, provider],
   );
   const selectedProviderId = selectedProvider?.id;
+  console.log('[AgentCreateDialog] selectedProvider:', selectedProvider, 'selectedProviderId:', selectedProviderId);
   const { models, loading: modelsLoading } = useProviderModels(selectedProviderId, selectedProvider?.provider_type);
+  console.log('[AgentCreateDialog] models:', models, 'loading:', modelsLoading);
   const { verify, verifying, result: verifyResult, reset: resetVerify } = useProviderVerify();
 
   // Reset verification when provider or model changes
@@ -182,6 +186,7 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                     onChange={setModel}
                     options={models.map((m) => ({ value: m.id, label: m.name }))}
                     placeholder={modelsLoading ? t("create.loadingModels") : t("create.enterOrSelectModel")}
+                    portalContainer={portalRef}
                   />
                 </div>
                 <Button
@@ -288,6 +293,8 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
             </Button>
           )}
         </DialogFooter>
+        {/* Portal target for dropdowns — inside dialog (pointer events), outside overflow (no clipping) */}
+        <div ref={portalRef} className="relative" />
       </DialogContent>
     </Dialog>
   );

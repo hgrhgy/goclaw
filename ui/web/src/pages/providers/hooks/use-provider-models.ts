@@ -22,13 +22,17 @@ export function useProviderModels(providerId: string | undefined, providerType?:
   const http = useHttp();
   const isOAuth = providerType === "chatgpt_oauth";
 
+  console.log('[useProviderModels] providerId:', providerId, 'providerType:', providerType, 'enabled:', !!providerId);
+
   const { data: models = [], isLoading: loading } = useQuery({
     queryKey: queryKeys.providers.models(providerId ?? ""),
     queryFn: async () => {
+      console.log('[useProviderModels] fetching models for provider:', providerId);
       if (isOAuth) return CODEX_MODELS;
       const res = await http.get<{ models: ModelInfo[] }>(
         `/v1/providers/${providerId}/models`,
       );
+      console.log('[useProviderModels] models response:', res);
       return res.models ?? [];
     },
     enabled: !!providerId,

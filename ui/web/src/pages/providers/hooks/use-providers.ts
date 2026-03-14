@@ -16,6 +16,7 @@ export function useProviders() {
     queryKey: queryKeys.providers.all,
     queryFn: async () => {
       const res = await http.get<{ providers: ProviderData[] }>("/v1/providers");
+      console.log('[useProviders] providers response:', res);
       return res.providers ?? [];
     },
     staleTime: 60_000,

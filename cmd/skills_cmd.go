@@ -89,7 +89,7 @@ func skillsShowCmd() *cobra.Command {
 func loadSkillsLoader() *skills.Loader {
 	cfgPath := resolveConfigPath()
 	cfg, _ := config.Load(cfgPath)
-	workspace := config.ExpandHome(cfg.Agents.Defaults.Workspace)
+	workspace := cfg.Agents.ResolveAgentPath(cfg.Agents.Defaults.Workspace)
 	globalSkillsDir := filepath.Join(config.ExpandHome("~/.goclaw"), "skills")
 	return skills.NewLoader(workspace, globalSkillsDir, "")
 }

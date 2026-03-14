@@ -132,7 +132,7 @@ func runDoctor() {
 
 	// Workspace
 	fmt.Println()
-	ws := config.ExpandHome(cfg.Agents.Defaults.Workspace)
+	ws := cfg.Agents.ResolveAgentPath(cfg.Agents.Defaults.Workspace)
 	fmt.Printf("  Workspace: %s", ws)
 	if _, err := os.Stat(ws); err != nil {
 		fmt.Println(" (NOT FOUND)")

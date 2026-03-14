@@ -71,10 +71,7 @@ func runGateway() {
 	registerProviders(providerRegistry, cfg)
 
 	// Resolve workspace (must be absolute for system prompt + file tool path resolution)
-	workspace := config.ExpandHome(cfg.Agents.Defaults.Workspace)
-	if !filepath.IsAbs(workspace) {
-		workspace, _ = filepath.Abs(workspace)
-	}
+	workspace := cfg.Agents.ResolveAgentPath(cfg.Agents.Defaults.Workspace)
 	os.MkdirAll(workspace, 0755)
 
 	// Bootstrap files live in Postgres.

@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -163,7 +162,8 @@ func (h *AgentsHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		req.MaxToolIterations = 20
 	}
 	if req.Workspace == "" {
-		req.Workspace = fmt.Sprintf("~/.goclaw/%s-workspace", req.AgentKey)
+		// Use relative path within agents root (from config) or default to "workspace"
+		req.Workspace = "workspace"
 	}
 	req.RestrictToWorkspace = true
 

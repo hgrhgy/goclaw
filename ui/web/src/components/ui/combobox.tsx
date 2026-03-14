@@ -101,7 +101,7 @@ export function Combobox({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearch(val);
-    onChange(val);
+    // Only call onChange when user explicitly selects an option, not on every input
     if (!open && options.length > 0) setOpen(true);
   };
 

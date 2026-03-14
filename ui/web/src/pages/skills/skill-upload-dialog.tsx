@@ -29,6 +29,15 @@ interface SkillUploadDialogProps {
   onUpload: (file: File) => Promise<unknown>;
 }
 
+// Generate a unique ID - uses crypto.randomUUID if available, otherwise falls back to a simple random string
+const generateId = (): string => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  // Fallback for browsers without randomUUID support
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
 export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadDialogProps) {
   const { t } = useTranslation("skills");
   const [entries, setEntries] = useState<FileEntry[]>([]);
@@ -46,7 +55,7 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
     if (fresh.length === 0) return;
 
     const pending: FileEntry[] = fresh.map((f) => ({
-      id: crypto.randomUUID(),
+      id: generateId(),
       file: f,
       status: "validating" as const,
     }));

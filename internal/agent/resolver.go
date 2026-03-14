@@ -44,6 +44,9 @@ type ResolverDeps struct {
 	InjectionAction string // "log", "warn", "block", "off"
 	MaxMessageChars int
 
+	// Agents root path for resolving relative workspace paths
+	AgentsRoot string
+
 	// Global defaults (from config.json) — per-agent DB overrides take priority
 	CompactionCfg          *config.CompactionConfig
 	ContextPruningCfg      *config.ContextPruningConfig
@@ -252,12 +255,16 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 			sandboxCfgOverride = &resolved
 		}
 
-		// Expand ~ in workspace path and ensure directory exists
+		// Resolve workspace path: first expand ~, then join with agents root if relative
 		workspace := ag.Workspace
 		if workspace != "" {
-			workspace = config.ExpandHome(workspace)
-			if !filepath.IsAbs(workspace) {
-				workspace, _ = filepath.Abs(workspace)
+			resolved := config.ExpandHome(workspace)
+			if filepath.IsAbs(resolved) {
+				workspace = resolved
+			} else if deps.AgentsRoot != "" {
+				workspace = filepath.Join(config.ExpandHome(deps.AgentsRoot), resolved)
+			} else {
+				workspace, _ = filepath.Abs(resolved)
 			}
 			if err := os.MkdirAll(workspace, 0755); err != nil {
 				slog.Warn("failed to create agent workspace directory", "workspace", workspace, "agent", agentKey, "error", err)

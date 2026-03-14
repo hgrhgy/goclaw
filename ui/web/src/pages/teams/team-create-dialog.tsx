@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,7 @@ export function TeamCreateDialog({ open, onOpenChange, onCreate }: TeamCreateDia
   const [memberSearch, setMemberSearch] = useState("");
   const [members, setMembers] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const portalRef = useRef<HTMLDivElement>(null);
 
   // Refresh agents when dialog opens to ensure fresh data
   useEffect(() => {
@@ -144,6 +145,7 @@ export function TeamCreateDialog({ open, onOpenChange, onCreate }: TeamCreateDia
               onChange={setLead}
               options={leadOptions}
               placeholder={agentsLoading ? t("create.loadingAgents") : t("create.selectLeadAgent")}
+              portalContainer={portalRef}
             />
             {!agentsLoading && leadOptions.length === 0 && (
               <p className="text-xs text-muted-foreground">{t("create.noActiveAgents")}</p>
@@ -176,6 +178,7 @@ export function TeamCreateDialog({ open, onOpenChange, onCreate }: TeamCreateDia
               }}
               options={memberOptions}
               placeholder={agentsLoading ? t("create.loadingAgents") : t("create.searchMembers")}
+              portalContainer={portalRef}
             />
             {members.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -203,6 +206,8 @@ export function TeamCreateDialog({ open, onOpenChange, onCreate }: TeamCreateDia
             {loading ? t("create.creating") : t("create.create")}
           </Button>
         </DialogFooter>
+        {/* Portal target for dropdowns — inside dialog (pointer events), outside overflow (no clipping) */}
+        <div ref={portalRef} className="relative" />
       </DialogContent>
     </Dialog>
   );

@@ -22,7 +22,7 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
     
     try {
       // Verify connectivity and credentials before navigating
-      const res = await apiFetch("/v1/agents", {
+      const res = await fetch("/v1/agents", {
         headers: {
           Authorization: `Bearer ${token.trim()}`,
           "X-GoClaw-User-Id": userId.trim(),
@@ -96,11 +96,4 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
       </button>
     </form>
   );
-}
-
-function apiFetch(path: string, options?: RequestInit) {
-  // Use VITE_API_URL if set (e.g., "http://localhost:18790"), otherwise use relative path
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const baseUrl = apiUrl ? apiUrl : "";
-  return fetch(`${baseUrl}/${path}`, options);
 }

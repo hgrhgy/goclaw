@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -102,6 +103,22 @@ type BindingPeer struct {
 type AgentsConfig struct {
 	Defaults AgentDefaults        `json:"defaults"`
 	List     map[string]AgentSpec `json:"list,omitempty"`
+	Root     string               `json:"root,omitempty"` // absolute base path for relative paths in defaults (e.g. "/Users/hyj/agents")
+}
+
+// ResolveAgentPath resolves a relative path within agents root.
+// If path is absolute, returns as-is. If relative and Root is set, joins them.
+// Otherwise, expands ~ to home directory.
+func (c *AgentsConfig) ResolveAgentPath(relativePath string) string {
+	// First expand ~ in case it's "~/something"
+	resolved := ExpandHome(relativePath)
+	if filepath.IsAbs(resolved) {
+		return resolved
+	}
+	if c.Root != "" {
+		return filepath.Join(ExpandHome(c.Root), resolved)
+	}
+	return resolved
 }
 
 // AgentDefaults are default settings for all agents.

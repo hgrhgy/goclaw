@@ -5,8 +5,8 @@ import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const backendHost = env.VITE_BACKEND_HOST || "192.168.3.97";
   const backendPort = env.VITE_BACKEND_PORT || "18790";
-  const backendHost = env.VITE_BACKEND_HOST || "localhost";
 
   return {
     plugins: [react(), tailwindcss()],
@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      host: "192.168.3.97",
       port: 5173,
       proxy: {
         "/ws": {

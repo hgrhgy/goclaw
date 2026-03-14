@@ -8,7 +8,6 @@ import (
 	"slices"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bootstrap"
-	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
@@ -295,9 +294,9 @@ func (m *AgentsMethods) handleFilesSet(ctx context.Context, client *gateway.Clie
 
 func (m *AgentsMethods) resolveWorkspace(agentID string) string {
 	if spec, ok := m.cfg.Agents.List[agentID]; ok && spec.Workspace != "" {
-		return config.ExpandHome(spec.Workspace)
+		return m.cfg.Agents.ResolveAgentPath(spec.Workspace)
 	}
-	return config.ExpandHome(m.cfg.Agents.Defaults.Workspace)
+	return m.cfg.Agents.ResolveAgentPath(m.cfg.Agents.Defaults.Workspace)
 }
 
 func isAllowedFile(name string) bool {

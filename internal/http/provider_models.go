@@ -33,11 +33,15 @@ func (h *ProvidersHandler) handleListProviderModels(w http.ResponseWriter, r *ht
 		return
 	}
 
+	slog.Info("handleListProviderModels called", "provider_id", id)
+
 	p, err := h.store.GetProvider(r.Context(), id)
 	if err != nil {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "provider", id.String())})
 		return
 	}
+
+	slog.Info("handleListProviderModels: provider found", "name", p.Name, "type", p.ProviderType, "has_api_key", p.APIKey != "")
 
 	// Claude CLI doesn't need an API key — return hardcoded models
 	if p.ProviderType == store.ProviderClaudeCLI {
@@ -55,6 +59,8 @@ func (h *ProvidersHandler) handleListProviderModels(w http.ResponseWriter, r *ht
 
 	var models []ModelInfo
 
+	slog.Info("handleListProviderModels: switching on provider type", "type", p.ProviderType)
+
 	switch p.ProviderType {
 	case "anthropic_native":
 		models, err = fetchAnthropicModels(ctx, p.APIKey, p.APIBase)
@@ -65,7 +71,9 @@ func (h *ProvidersHandler) handleListProviderModels(w http.ResponseWriter, r *ht
 	case "dashscope":
 		models = dashScopeModels()
 	case "minimax_native", "minimax_cn":
+		slog.Info("handleListProviderModels: matched minimax")
 		models = minimaxModels()
+		slog.Info("handleListProviderModels: minimaxModels returned", "count", len(models))
 	case "suno":
 		models = sunoModels()
 	default:
@@ -76,6 +84,8 @@ func (h *ProvidersHandler) handleListProviderModels(w http.ResponseWriter, r *ht
 		}
 		models, err = fetchOpenAIModels(ctx, apiBase, p.APIKey)
 	}
+
+	slog.Info("handleListProviderModels: models result", "count", len(models), "error", err)
 
 	if err != nil {
 		slog.Warn("providers.models", "provider", p.Name, "error", err)

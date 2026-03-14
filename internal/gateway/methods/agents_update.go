@@ -143,7 +143,7 @@ func (m *AgentsMethods) handleUpdate(ctx context.Context, client *gateway.Client
 		if params.Avatar != "" {
 			ws := spec.Workspace
 			if ws == "" {
-				ws = config.ExpandHome(m.cfg.Agents.Defaults.Workspace)
+				ws = m.cfg.Agents.ResolveAgentPath(m.cfg.Agents.Defaults.Workspace)
 			}
 			identityPath := filepath.Join(ws, "IDENTITY.md")
 			appendIdentityFields(identityPath, "", "", params.Avatar)

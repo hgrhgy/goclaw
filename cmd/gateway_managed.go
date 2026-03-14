@@ -147,6 +147,7 @@ func wireExtras(
 		DynamicLoader:          dynamicLoader,
 		AgentLinkStore:         stores.AgentLinks,
 		TeamStore:              stores.Teams,
+		AgentsRoot:             appCfg.Agents.Root,
 		BuiltinToolStore:       stores.BuiltinTools,
 		MCPStore:               stores.MCP,
 		MCPPool:                mcpPool,

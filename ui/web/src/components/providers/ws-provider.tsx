@@ -8,25 +8,36 @@ import { useWsEvent } from "@/hooks/use-ws-event";
 import { TEAM_RELATED_EVENTS } from "@/api/protocol";
 import { useTeamEventStore } from "@/stores/use-team-event-store";
 
-// In dev mode, connect directly to backend WS (bypass Vite proxy).
-// In production, use relative "/ws" path or configured VITE_API_URL.
-// VITE_API_URL: Full backend URL including protocol, IP and port (e.g., "http://localhost:18790" or "http://192.168.1.100:18790")
+// Use VITE_BACKEND_HOST and VITE_BACKEND_PORT to build absolute URLs for direct backend connection.
+// If not set, use relative paths (goes through Vite proxy in dev, same-origin in prod).
+// VITE_BACKEND_HOST: Backend IP/hostname (e.g., "192.168.3.97")
+// VITE_BACKEND_PORT: Backend port (e.g., "18790")
 // VITE_WS_URL: WebSocket URL - can be absolute (ws://host:port/path) or relative (/ws)
-// If VITE_API_URL is set, WebSocket URL will be automatically derived from it
-const API_URL = import.meta.env.VITE_API_URL || "";
+function getApiUrl(): string {
+  const host = import.meta.env.VITE_BACKEND_HOST;
+  const port = import.meta.env.VITE_BACKEND_PORT;
+  if (host && port) {
+    return `http://${host}:${port}`;
+  }
+  return ""; // Use relative path (Vite proxy in dev, same-origin in prod)
+}
+
 function getWsUrl(): string {
   const envWsUrl = import.meta.env.VITE_WS_URL;
   if (envWsUrl) {
     return envWsUrl;
   }
-  if (API_URL) {
-    // Derive WebSocket URL from API_URL
-    const proto = API_URL.startsWith("https") ? "wss" : "ws";
-    const hostPort = API_URL.replace(/^https?:\/\//, "");
+  const apiUrl = getApiUrl();
+  if (apiUrl) {
+    // Derive WebSocket URL from API URL
+    const proto = apiUrl.startsWith("https") ? "wss" : "ws";
+    const hostPort = apiUrl.replace(/^https?:\/\//, "");
     return `${proto}://${hostPort}/ws`;
   }
-  return "/ws";
+  return "/ws"; // Use relative path (Vite proxy)
 }
+
+const API_URL = getApiUrl();
 const WS_URL = getWsUrl();
 
 export function WsProvider({ children }: { children: React.ReactNode }) {

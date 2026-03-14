@@ -127,6 +127,7 @@ func (h *ProvidersHandler) registerInMemory(p *store.LLMProviderData) {
 // --- Provider CRUD ---
 
 func (h *ProvidersHandler) handleListProviders(w http.ResponseWriter, r *http.Request) {
+	slog.Info("handleListProviders called")
 	providers, err := h.store.ListProviders(r.Context())
 	if err != nil {
 		slog.Error("providers.list", "error", err)
@@ -135,7 +136,9 @@ func (h *ProvidersHandler) handleListProviders(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	for i := range providers {
+	slog.Info("handleListProviders: providers found", "count", len(providers))
+	for i, p := range providers {
+		slog.Info("provider", "index", i, "name", p.Name, "enabled", p.Enabled, "type", p.ProviderType)
 		maskAPIKey(&providers[i])
 	}
 
