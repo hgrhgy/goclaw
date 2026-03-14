@@ -17,11 +17,12 @@ import { PROVIDER_TYPES } from "@/constants/providers";
 import { useProviders } from "@/pages/providers/hooks/use-providers";
 import { CLISection } from "@/pages/providers/provider-cli-section";
 import { slugify } from "@/lib/slug";
-import type { ProviderData } from "@/types/provider";
+import type { ProviderData, ProviderInput } from "@/types/provider";
 
 interface StepProviderProps {
   providers?: ProviderData[];
   onComplete: (provider: ProviderData) => void;
+<<<<<<< HEAD
   onBack?: () => void;
 }
 
@@ -31,8 +32,23 @@ export function StepProvider({ providers = [], onComplete, onBack }: StepProvide
 
   const [providerType, setProviderType] = useState("openrouter");
   const [displayName, setDisplayName] = useState("openrouter");
+=======
+  existingProvider?: ProviderData | null;
+}
+
+export function StepProvider({ onComplete, existingProvider }: StepProviderProps) {
+  const { t } = useTranslation("setup");
+  const { createProvider, updateProvider } = useProviders();
+
+  const isEditing = !!existingProvider;
+
+  const [providerType, setProviderType] = useState(existingProvider?.provider_type ?? "openrouter");
+  const [name, setName] = useState(existingProvider?.name ?? "openrouter");
+>>>>>>> upstream/main
   const [apiKey, setApiKey] = useState("");
-  const [apiBase, setApiBase] = useState("https://openrouter.ai/api/v1");
+  const [apiBase, setApiBase] = useState(
+    existingProvider?.api_base ?? "https://openrouter.ai/api/v1",
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [duplicateMode, setDuplicateMode] = useState<"create" | "use" | "update" | null>(null);
@@ -77,6 +93,7 @@ export function StepProvider({ providers = [], onComplete, onBack }: StepProvide
     [providerType],
   );
 
+<<<<<<< HEAD
   const handleCreate = async () => {
     if (!isCLI && !isOllama && !apiKey.trim()) { setError(t("provider.errors.apiKeyRequired")); return; }
 
@@ -114,17 +131,33 @@ export function StepProvider({ providers = [], onComplete, onBack }: StepProvide
       }
     }
 
+=======
+  const handleSubmit = async () => {
+    if (!isEditing && !isCLI && !isOllama && !apiKey.trim()) { setError(t("provider.errors.apiKeyRequired")); return; }
+>>>>>>> upstream/main
     setLoading(true);
     setError("");
     try {
-      const provider = await createProvider({
-        name: name.trim(),
-        provider_type: providerType,
-        api_base: apiBase.trim() || undefined,
-        api_key: isCLI || isOllama ? undefined : apiKey.trim(),
-        enabled: true,
-      }) as ProviderData;
-      onComplete(provider);
+      if (isEditing) {
+        const patch: Record<string, unknown> = {
+          name: name.trim(),
+          provider_type: providerType,
+          api_base: apiBase.trim() || undefined,
+        };
+        // Only include api_key if user entered a new one
+        if (apiKey.trim()) patch.api_key = apiKey.trim();
+        await updateProvider(existingProvider!.id, patch as Partial<ProviderInput>);
+        onComplete({ ...existingProvider!, ...patch } as ProviderData);
+      } else {
+        const provider = await createProvider({
+          name: name.trim(),
+          provider_type: providerType,
+          api_base: apiBase.trim() || undefined,
+          api_key: isCLI || isOllama ? undefined : apiKey.trim(),
+          enabled: true,
+        }) as ProviderData;
+        onComplete(provider);
+      }
     } catch (err) {
       // Check if it's a duplicate error
       const errMsg = err instanceof Error ? err.message : "";
@@ -220,6 +253,7 @@ export function StepProvider({ providers = [], onComplete, onBack }: StepProvide
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
+<<<<<<< HEAD
           {/* Duplicate provider options */}
           {duplicateMode && existingProvider && (
             <div className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950">
@@ -251,6 +285,14 @@ export function StepProvider({ providers = [], onComplete, onBack }: StepProvide
                 {loading ? t("provider.creating") : t("provider.create")}
               </Button>
             )}
+=======
+          <div className="flex justify-end">
+            <Button onClick={handleSubmit} disabled={loading || (!isEditing && !isCLI && !isOllama && !apiKey.trim())}>
+              {loading
+                ? isEditing ? t("provider.updating", "Updating...") : t("provider.creating")
+                : isEditing ? t("provider.update", "Update") : t("provider.create")}
+            </Button>
+>>>>>>> upstream/main
           </div>
         </TooltipProvider>
       </CardContent>

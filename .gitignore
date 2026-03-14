@@ -42,6 +42,11 @@ k8s-*/*
 
 # Test credentials (never commit)
 tests/**/creds.json
+<<<<<<< HEAD
 
 
 .minimax
+=======
+ui/simple-saas
+*.tar
+>>>>>>> upstream/main

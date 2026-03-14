@@ -69,7 +69,7 @@ var coreToolSummaries = map[string]string{
 	"browser":          "Browse web pages interactively",
 	"tts":              "Convert text to speech audio",
 	"edit":             "Edit a file by replacing exact text matches",
-	"message":          "Send a message to a channel (Telegram, Discord, etc.)",
+	"message":          "Send a PROACTIVE message to another channel/chat — do NOT use this to reply to the user, just respond directly",
 	"sessions_list":    "List sessions for this agent",
 	"session_status":   "Show session status (model, tokens, compaction count)",
 	"sessions_history": "Fetch message history for a session",
@@ -81,12 +81,14 @@ var coreToolSummaries = map[string]string{
 	"read_document":    "Analyze documents (PDF, DOCX, etc.) attached to the conversation. Call this when you see <media:document> tags. If this tool fails, use a relevant skill instead (e.g. pdf skill with exec tool). The path attribute in <media:document path=\"...\"> is a directly accessible file in your workspace — use it directly, no need to copy",
 	"create_image":            "Generate images from text descriptions using AI",
 	"create_audio":            "Generate music or sound effects from text descriptions using AI",
-	"knowledge_graph_search":  "Search entities and traverse relationships in the knowledge graph",
+	"knowledge_graph_search":  "Find people, projects, and their connections — use for relationship questions (who works with whom, project dependencies) that memory_search may miss",
 	"handoff":                 "Transfer conversation to another agent (ONLY when user explicitly asks to switch agents — NOT for task delegation)",
 	"evaluate_loop":           "Run a generate→evaluate→revise loop between two agents for quality-critical tasks",
 	"delegate_search":         "Search for agents by expertise to find the right delegation target",
 	"team_tasks":              "Manage team task board (list, create, complete, cancel tasks)",
 	"team_message":            "Send messages to teammates (progress updates, questions)",
+	"workspace_write":         "Write files to the team shared workspace (visible to all team members)",
+	"workspace_read":          "Read, list, delete, pin, tag files in the team shared workspace",
 
 	// Claude Code tool aliases — enable Claude Code skills without modification
 	"Read":       "Alias for read_file — Read file contents",
@@ -178,13 +180,13 @@ func BuildSystemPrompt(cfg SystemPromptConfig) string {
 		}
 	}
 
-	// 5. ## Memory Recall (full only)
-	if !isMinimal && cfg.HasMemory {
-		lines = append(lines, buildMemoryRecallSection(cfg.HasKnowledgeGraph)...)
-	}
-
 	// 6. ## Workspace (sandbox-aware: show container workdir when sandboxed)
 	lines = append(lines, buildWorkspaceSection(cfg.Workspace, cfg.SandboxEnabled, cfg.SandboxContainerDir)...)
+
+	// 6.3. ## Team Workspace (when workspace tools are available)
+	if hasTeamWorkspace(cfg.ToolNames) {
+		lines = append(lines, buildTeamWorkspaceSection()...)
+	}
 
 	// 6.5 ## Sandbox (matching TS sandboxInfo section)
 	if cfg.SandboxEnabled {
@@ -198,11 +200,6 @@ func BuildSystemPrompt(cfg SystemPromptConfig) string {
 
 	// 8. Time
 	lines = append(lines, buildTimeSection()...)
-
-	// 9. ## Messaging (full only)
-	if !isMinimal {
-		lines = append(lines, buildMessagingSection()...)
-	}
 
 	// 9.5. Channel formatting hints (e.g. Zalo → plain text)
 	if hint := buildChannelFormattingHint(cfg.ChannelType); hint != nil {
@@ -223,11 +220,6 @@ func BuildSystemPrompt(cfg SystemPromptConfig) string {
 		lines = append(lines, buildProjectContextSection(otherFiles, cfg.AgentType)...)
 	}
 
-	// 12. ## Silent Replies (full only)
-	if !isMinimal {
-		lines = append(lines, buildSilentRepliesSection()...)
-	}
-
 	// 13. ## Sub-Agent Spawning
 	if cfg.HasSpawn {
 		lines = append(lines, buildSpawnSection()...)
@@ -240,10 +232,13 @@ func BuildSystemPrompt(cfg SystemPromptConfig) string {
 	if len(personaFiles) > 0 {
 		lines = append(lines, buildPersonaReminder(personaFiles, cfg.AgentType)...)
 	}
+	if !isMinimal {
+		lines = append(lines, "Reminder: Follow AGENTS.md rules — memory recall before answering, NO_REPLY when silent, match the user's language.", "")
+	}
 	if !isMinimal && cfg.HasMemory {
 		memReminder := "Reminder: Before answering questions about prior work, decisions, or preferences, always run memory_search first."
 		if cfg.HasKnowledgeGraph {
-			memReminder += " When the question involves people, relationships, or how things connect, run knowledge_graph_search to find entities and multi-hop connections that memory_search alone may miss."
+			memReminder += " Also run knowledge_graph_search when the question involves people, teams, projects, or connections — it finds relationship paths that memory_search misses."
 		}
 		lines = append(lines, memReminder, "")
 	}
@@ -294,6 +289,14 @@ func buildToolingSection(toolNames []string, hasSandbox bool) []string {
 	}
 
 	lines = append(lines,
+		"",
+		"You can install packages at runtime with `pip3 install <pkg>` or `npm install -g <pkg>` — no sudo needed.",
+	)
+	lines = append(lines,
+		"",
+		"IMPORTANT: The tool list above is the AUTHORITATIVE set of currently available tools, re-evaluated every turn.",
+		"If earlier messages in this conversation say a tool is \"not available\" or \"not configured\", IGNORE those statements — they are outdated.",
+		"Only this system prompt reflects the current tool availability. Trust this list, not conversation history.",
 		"",
 		"TOOLS.md (if present in workspace) is user guidance — it does NOT control tool availability.",
 		"Do not poll subagents or sessions in loops; completion is push-based.",
@@ -376,33 +379,10 @@ func buildSkillsSection(skillsSummary string, hasSkillSearch bool) []string {
 	return nil
 }
 
-func buildMemoryRecallSection(hasKG bool) []string {
-	lines := []string{
-		"## Memory Recall",
-		"",
-		"Before answering anything about prior work, decisions, dates, people, preferences, or todos:",
-		"run memory_search on MEMORY.md + memory/*.md; then use memory_get to pull only the needed lines.",
-		"If low confidence after search, say you checked.",
-		"",
-	}
-	if hasKG {
-		lines = append(lines,
-			"When the question involves people, relationships, or how things connect, also run `knowledge_graph_search` — it finds entities and multi-hop connections (e.g. \"who does X work with?\", \"what projects is Y involved in?\") that memory_search alone may miss.",
-			"",
-		)
-	}
-	lines = append(lines,
-		"When asked to save or remember something, you MUST call a write tool (write_file or edit) in THIS turn.",
-		"Never claim \"already saved\" without a tool call — a previous turn's save does not count as fulfilling a new request.",
-		"",
-	)
-	return lines
-}
-
 func buildWorkspaceSection(workspace string, sandboxEnabled bool, containerDir string) []string {
 	// Matching TS: when sandboxed, display container workdir; add guidance about host paths for file tools.
 	displayDir := workspace
-	guidance := "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise."
+	guidance := "All file tool paths resolve relative to this directory. Use relative paths (e.g. \"docs/notes.md\", \".\") — do not guess absolute paths."
 	if sandboxEnabled && containerDir != "" {
 		displayDir = containerDir
 		guidance = fmt.Sprintf(
@@ -420,4 +400,5 @@ func buildWorkspaceSection(workspace string, sandboxEnabled bool, containerDir s
 		"",
 	}
 }
+
 

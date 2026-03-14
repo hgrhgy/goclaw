@@ -72,7 +72,11 @@ export function SetupPage() {
 
       {step === 1 && (
         <StepProvider
+<<<<<<< HEAD
           providers={providers}
+=======
+          existingProvider={createdProvider}
+>>>>>>> upstream/main
           onComplete={(provider) => {
             setCreatedProvider(provider);
             setStep(2);
@@ -83,6 +87,8 @@ export function SetupPage() {
       {step === 2 && activeProvider && (
         <StepModel
           provider={activeProvider}
+          initialModel={selectedModel}
+          onBack={() => setStep(1)}
           onComplete={(model) => {
             setSelectedModel(model);
             setStep(3);
@@ -95,6 +101,8 @@ export function SetupPage() {
         <StepAgent
           provider={activeProvider}
           model={selectedModel}
+          existingAgent={createdAgent}
+          onBack={() => setStep(2)}
           onComplete={(agent) => {
             setCreatedAgent(agent);
             setStep(4);
@@ -106,6 +114,7 @@ export function SetupPage() {
       {step === 4 && (
         <StepChannel
           agent={activeAgent}
+          onBack={() => setStep(3)}
           onComplete={handleFinish}
           onSkip={handleFinish}
           onBack={goBack}

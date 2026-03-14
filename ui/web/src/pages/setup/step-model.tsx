@@ -16,14 +16,25 @@ interface StepModelProps {
   provider: ProviderData;
   onComplete: (model: string) => void;
   onBack?: () => void;
+<<<<<<< HEAD
 }
 
 export function StepModel({ provider, onComplete, onBack }: StepModelProps) {
+=======
+  initialModel?: string | null;
+}
+
+export function StepModel({ provider, onComplete, onBack, initialModel }: StepModelProps) {
+>>>>>>> upstream/main
   const { t } = useTranslation("setup");
   const { models, loading: modelsLoading } = useProviderModels(provider.id, provider.provider_type);
   const { verify, verifying, result: verifyResult, reset: resetVerify } = useProviderVerify();
 
+<<<<<<< HEAD
   const [displayModel, setDisplayModel] = useState("");
+=======
+  const [model, setModel] = useState(initialModel ?? "");
+>>>>>>> upstream/main
   const [error, setError] = useState("");
 
   // Use displayModel for display, but keep original value for API calls
@@ -98,6 +109,7 @@ export function StepModel({ provider, onComplete, onBack }: StepModelProps) {
             </div>
           )}
 
+<<<<<<< HEAD
           <div className="flex justify-between gap-2">
             {onBack && (
               <Button variant="outline" onClick={onBack}>
@@ -105,6 +117,15 @@ export function StepModel({ provider, onComplete, onBack }: StepModelProps) {
               </Button>
             )}
             <div className="flex gap-2 ml-auto">
+=======
+          <div className={`flex ${onBack ? "justify-between" : "justify-end"} gap-2`}>
+            {onBack && (
+              <Button variant="secondary" onClick={onBack}>
+                ← {t("common.back")}
+              </Button>
+            )}
+            <div className="flex gap-2">
+>>>>>>> upstream/main
               <Button
                 variant="outline"
                 onClick={handleVerify}

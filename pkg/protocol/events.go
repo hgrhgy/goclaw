@@ -43,6 +43,12 @@ const (
 	// Team task lifecycle events.
 	EventTeamTaskClaimed   = "team.task.claimed"
 	EventTeamTaskCancelled = "team.task.cancelled"
+	EventTeamTaskReviewed  = "team.task.reviewed"
+	EventTeamTaskApproved  = "team.task.approved"
+	EventTeamTaskRejected  = "team.task.rejected"
+	EventTeamTaskProgress  = "team.task.progress"
+	EventTeamTaskCommented = "team.task.commented"
+	EventTeamTaskAssigned  = "team.task.assigned"
 
 	// Team CRUD events (admin operations).
 	EventTeamCreated       = "team.created"
@@ -50,6 +56,9 @@ const (
 	EventTeamDeleted       = "team.deleted"
 	EventTeamMemberAdded   = "team.member.added"
 	EventTeamMemberRemoved = "team.member.removed"
+
+	// Workspace events (team file changes).
+	EventWorkspaceFileChanged = "workspace.file.changed"
 
 	// Agent link events (admin operations).
 	EventAgentLinkCreated = "agent_link.created"
@@ -59,8 +68,23 @@ const (
 	// Trace lifecycle events (realtime trace/span updates).
 	EventTraceUpdated = "trace.updated"
 
+	// Skill dependency check events (realtime progress during startup/rescan).
+	EventSkillDepsChecked  = "skill.deps.checked"
+	EventSkillDepsComplete = "skill.deps.complete"
+
+	// Skill dependency install events (triggered by POST /v1/skills/install-deps).
+	EventSkillDepsInstalling = "skill.deps.installing"
+	EventSkillDepsInstalled  = "skill.deps.installed"
+
+	// Per-item install events (triggered by POST /v1/skills/install-dep).
+	EventSkillDepItemInstalling = "skill.dep.item.installing" // payload: {dep: "pip:openpyxl"}
+	EventSkillDepItemInstalled  = "skill.dep.item.installed"  // payload: {dep, ok: bool, error?: string}
+
 	// Cache invalidation events (internal, not forwarded to WS clients).
 	EventCacheInvalidate = "cache.invalidate"
+
+	// Audit log event (internal, not forwarded to WS clients).
+	EventAuditLog = "audit.log"
 
 	// Zalo Personal QR login events (client-scoped, not broadcast).
 	EventZaloPersonalQRCode = "zalo.personal.qr.code"
