@@ -159,7 +159,6 @@ export function StepChannel({ agent, onComplete, onSkip, onBack }: StepChannelPr
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-<<<<<<< HEAD
         <div className="flex justify-between gap-2">
           {onBack && (
             <Button variant="outline" onClick={onBack}>
@@ -167,15 +166,6 @@ export function StepChannel({ agent, onComplete, onSkip, onBack }: StepChannelPr
             </Button>
           )}
           <div className="flex gap-2 ml-auto">
-=======
-        <div className={`flex ${onBack ? "justify-between" : "justify-end"} gap-2`}>
-          {onBack && (
-            <Button variant="secondary" onClick={onBack}>
-              ← {t("common.back")}
-            </Button>
-          )}
-          <div className="flex gap-2">
->>>>>>> upstream/main
             <Button variant="outline" onClick={onSkip} disabled={loading}>
               {t("channel.skipFinish")}
             </Button>

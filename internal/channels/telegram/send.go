@@ -163,7 +163,12 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 	}
 
 	// Text-only message
-	htmlContent := markdownToTelegramHTML(msg.Content)
+	// Prepend agent name to content if specified
+	content := msg.Content
+	if msg.AgentName != "" {
+		content = "<b>" + html.EscapeString(msg.AgentName) + "</b>\n\n" + content
+	}
+	htmlContent := markdownToTelegramHTML(content)
 	chunks := chunkHTML(htmlContent, telegramMaxMessageLen)
 
 	// If a stream message exists (stored by FinalizeStream), edit the first chunk
@@ -204,6 +209,11 @@ func (c *Channel) sendMediaMessage(ctx context.Context, chatID int64, msg bus.Ou
 		if caption == "" && msg.Content != "" {
 			caption = msg.Content
 			msg.Content = "" // only use for first media
+		}
+
+		// Prepend agent name to caption if specified
+		if msg.AgentName != "" && caption != "" {
+			caption = "<b>" + html.EscapeString(msg.AgentName) + "</b>\n\n" + caption
 		}
 
 		// Convert caption from markdown to Telegram HTML (same as regular messages).

@@ -24,6 +24,11 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 	// Strip markdown — Zalo does not support any markup rendering.
 	msg.Content = zalo.StripMarkdown(msg.Content)
 
+	// Prepend agent name if specified
+	if msg.AgentName != "" {
+		msg.Content = msg.AgentName + "\n\n" + msg.Content
+	}
+
 	// Stop typing indicator before sending response
 	if ctrl, ok := c.typingCtrls.LoadAndDelete(msg.ChatID); ok {
 		ctrl.(*typing.Controller).Stop()
@@ -41,8 +46,13 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 
 	// Send media attachments.
 	for _, media := range msg.Media {
+		caption := media.Caption
+		// Prepend agent name to caption if specified
+		if msg.AgentName != "" && caption != "" {
+			caption = msg.AgentName + "\n\n" + caption
+		}
 		if protocol.IsImageFile(media.URL) {
-			if err := c.sendImage(ctx, sess, msg.ChatID, threadType, media.URL, media.Caption); err != nil {
+			if err := c.sendImage(ctx, sess, msg.ChatID, threadType, media.URL, caption); err != nil {
 				slog.Warn("zalo_personal: failed to send image", "path", media.URL, "error", err)
 			}
 		} else {

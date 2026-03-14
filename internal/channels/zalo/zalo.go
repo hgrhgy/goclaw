@@ -115,6 +115,11 @@ func (c *Channel) Send(_ context.Context, msg bus.OutboundMessage) error {
 	// Strip markdown — Zalo does not support any markup rendering.
 	msg.Content = StripMarkdown(msg.Content)
 
+	// Prepend agent name if specified
+	if msg.AgentName != "" {
+		msg.Content = msg.AgentName + "\n\n" + msg.Content
+	}
+
 	// Check for media in content (URL-based photo sending)
 	if strings.Contains(msg.Content, "[photo:") {
 		// Extract photo URL from "[photo:URL]" pattern

@@ -40,6 +40,11 @@ func (c *Channel) Send(_ context.Context, msg bus.OutboundMessage) error {
 
 	content := msg.Content
 
+	// Prepend agent name if specified
+	if msg.AgentName != "" {
+		content = "*" + msg.AgentName + "*\n" + content
+	}
+
 	// NO_REPLY: delete placeholder, return
 	if content == "" {
 		if pTS, ok := c.placeholders.Load(placeholderKey); ok {

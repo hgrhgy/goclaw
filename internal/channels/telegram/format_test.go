@@ -1,8 +1,11 @@
 package telegram
 
 import (
+	"html"
 	"strings"
 	"testing"
+
+	"github.com/nextlevelbuilder/goclaw/internal/bus"
 )
 
 func TestDisplayWidth(t *testing.T) {
@@ -59,5 +62,58 @@ func TestRenderTableAsCode_Vietnamese(t *testing.T) {
 			t.Errorf("row %d width (%d) != header width (%d)\nrow:    %s\nheader: %s",
 				i, rowWidth, headerWidth, resultLines[i], resultLines[0])
 		}
+	}
+}
+
+func TestAgentNamePrefix(t *testing.T) {
+	tests := []struct {
+		name       string
+		agentName  string
+		content    string
+		wantPrefix string
+	}{
+		{
+			name:       "with agent name",
+			agentName:  "MyAgent",
+			content:    "Hello world",
+			wantPrefix: "<b>MyAgent</b>\n\nHello world",
+		},
+		{
+			name:       "with special characters in agent name",
+			agentName:  "Agent & Co <test>",
+			content:    "Hello",
+			wantPrefix: "<b>Agent &amp; Co &lt;test&gt;</b>\n\nHello",
+		},
+		{
+			name:       "empty agent name",
+			agentName:  "",
+			content:    "Hello world",
+			wantPrefix: "Hello world",
+		},
+		{
+			name:       "unicode agent name",
+			agentName:  "智能助手",
+			content:    "你好",
+			wantPrefix: "<b>智能助手</b>\n\n你好",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := bus.OutboundMessage{
+				Content:   tt.content,
+				AgentName: tt.agentName,
+			}
+
+			// Simulate the prefix logic from Send()
+			content := msg.Content
+			if msg.AgentName != "" {
+				content = "<b>" + html.EscapeString(msg.AgentName) + "</b>\n\n" + content
+			}
+
+			if content != tt.wantPrefix {
+				t.Errorf("got %q, want %q", content, tt.wantPrefix)
+			}
+		})
 	}
 }

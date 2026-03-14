@@ -101,10 +101,16 @@ func (c *Channel) Send(_ context.Context, msg bus.OutboundMessage) error {
 		return fmt.Errorf("whatsapp bridge not connected")
 	}
 
+	content := msg.Content
+	// Prepend agent name if specified
+	if msg.AgentName != "" {
+		content = "*" + msg.AgentName + "*\n" + content
+	}
+
 	payload := map[string]any{
 		"type":    "message",
 		"to":      msg.ChatID,
-		"content": msg.Content,
+		"content": content,
 	}
 
 	data, err := json.Marshal(payload)

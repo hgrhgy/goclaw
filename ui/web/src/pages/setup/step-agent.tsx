@@ -24,31 +24,18 @@ interface StepAgentProps {
   model: string | null;
   onComplete: (agent: AgentData) => void;
   onBack?: () => void;
-<<<<<<< HEAD
 }
 
 export function StepAgent({ provider, model, onComplete, onBack }: StepAgentProps) {
-=======
-  existingAgent?: AgentData | null;
-}
-
-export function StepAgent({ provider, model, onComplete, onBack, existingAgent }: StepAgentProps) {
->>>>>>> upstream/main
   const { t } = useTranslation("setup");
-  const { createAgent, updateAgent, deleteAgent, resummonAgent } = useAgents();
+  const { createAgent, deleteAgent, resummonAgent } = useAgents();
   const agentPresets = useAgentPresets();
 
-  const isEditing = !!existingAgent;
-
-  const [displayName, setDisplayName] = useState(existingAgent?.display_name ?? "GoClaw");
-  const [agentKey, setAgentKey] = useState(existingAgent?.agent_key ?? "goclaw");
-  const [keyTouched, setKeyTouched] = useState(isEditing);
-  const [description, setDescription] = useState(
-    existingAgent?.other_config?.description as string ?? DEFAULT_PROMPT,
-  );
-  const [selfEvolve, setSelfEvolve] = useState(
-    !!(existingAgent?.other_config?.self_evolve),
-  );
+  const [displayName, setDisplayName] = useState("GoClaw");
+  const [agentKey, setAgentKey] = useState("goclaw");
+  const [keyTouched, setKeyTouched] = useState(false);
+  const [description, setDescription] = useState(DEFAULT_PROMPT);
+  const [selfEvolve, setSelfEvolve] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -99,17 +86,7 @@ export function StepAgent({ provider, model, onComplete, onBack, existingAgent }
       if (description.trim()) otherConfig.description = description.trim();
       if (selfEvolve) otherConfig.self_evolve = true;
 
-      if (isEditing) {
-        // Update existing agent — skip summoning
-        const patch: Partial<AgentData> = {
-          display_name: displayName.trim() || undefined,
-          provider: provider.name,
-          model: model || "",
-          other_config: Object.keys(otherConfig).length > 0 ? otherConfig : undefined,
-        };
-        await updateAgent(existingAgent!.id, patch);
-        onComplete({ ...existingAgent!, ...patch } as AgentData);
-      } else {
+      {
         const data: Partial<AgentData> = {
           agent_key: agentKey.trim(),
           display_name: displayName.trim() || undefined,
@@ -200,7 +177,7 @@ export function StepAgent({ provider, model, onComplete, onBack, existingAgent }
                   onChange={(e) => { setKeyTouched(true); setAgentKey(e.target.value); }}
                   onBlur={() => setAgentKey(slugify(agentKey))}
                   placeholder={t("agent.agentKeyPlaceholder")}
-                  disabled={isEditing}
+                  disabled={false}
                 />
               </div>
             </div>
@@ -243,17 +220,10 @@ export function StepAgent({ provider, model, onComplete, onBack, existingAgent }
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-<<<<<<< HEAD
             <div className="flex justify-between">
               {onBack && (
                 <Button variant="outline" onClick={onBack}>
                   {t("common.back")}
-=======
-            <div className={`flex ${onBack ? "justify-between" : "justify-end"} gap-2`}>
-              {onBack && (
-                <Button variant="secondary" onClick={onBack}>
-                  ← {t("common.back")}
->>>>>>> upstream/main
                 </Button>
               )}
               <Button
@@ -262,8 +232,8 @@ export function StepAgent({ provider, model, onComplete, onBack, existingAgent }
                 className={onBack ? "ml-auto" : ""}
               >
                 {loading
-                  ? isEditing ? t("agent.updating", "Updating...") : t("agent.creating")
-                  : isEditing ? t("agent.update", "Update") : t("agent.create")}
+                  ? false ? t("agent.updating", "Updating...") : t("agent.creating")
+                  : false ? t("agent.update", "Update") : t("agent.create")}
               </Button>
             </div>
           </TooltipProvider>

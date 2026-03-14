@@ -7,6 +7,15 @@ import (
 	"testing"
 )
 
+// normalizePath resolves symlinks to handle macOS /var -> /private mapping
+func normalizePath(p string) string {
+	real, err := filepath.EvalSymlinks(p)
+	if err != nil {
+		return p
+	}
+	return real
+}
+
 func TestResolveMediaPath(t *testing.T) {
 	tmpDir := os.TempDir()
 
@@ -25,19 +34,24 @@ func TestResolveMediaPath(t *testing.T) {
 		tool := NewMessageTool(workspace, true)
 		ctx := context.Background()
 
+		// Normalize workspace-related paths to handle macOS /var -> /private mapping
+		// Note: /tmp/ paths are returned as-is (not symlink-resolved) per resolveMediaPath implementation
+		workspaceNormalized := normalizePath(workspace)
+		testFileNormalized := normalizePath(testFile)
+
 		tests := []struct {
 			name   string
 			input  string
 			want   string
 			wantOK bool
 		}{
-			// /tmp/ always allowed
+			// /tmp/ always allowed - returned as-is (not symlink-resolved)
 			{"valid temp file", "MEDIA:" + filepath.Join(tmpDir, "test.png"), filepath.Join(tmpDir, "test.png"), true},
 			{"valid nested temp", "MEDIA:" + filepath.Join(tmpDir, "sub", "file.txt"), filepath.Join(tmpDir, "sub", "file.txt"), true},
 
-			// Workspace files allowed
-			{"workspace absolute", "MEDIA:" + testFile, testFile, true},
-			{"workspace relative", "MEDIA:docs/report.pdf", testFile, true},
+			// Workspace files allowed (symlink-resolved)
+			{"workspace absolute", "MEDIA:" + testFile, testFileNormalized, true},
+			{"workspace relative", "MEDIA:docs/report.pdf", testFileNormalized, true},
 
 			// Not a MEDIA: message
 			{"no prefix", filepath.Join(tmpDir, "test.png"), "", false},
@@ -48,7 +62,8 @@ func TestResolveMediaPath(t *testing.T) {
 
 			// Outside workspace + outside /tmp/ → blocked
 			{"outside workspace", "MEDIA:/etc/passwd", "", false},
-			{"traversal attack", "MEDIA:" + filepath.Join(workspace, "..", "etc", "passwd"), "", false},
+			// Traversal attack: use normalized workspace path for the check
+			{"traversal attack", "MEDIA:" + filepath.Join(workspaceNormalized, "..", "etc", "passwd"), "", false},
 		}
 
 		for _, tt := range tests {
@@ -93,12 +108,15 @@ func TestResolveMediaPath(t *testing.T) {
 		tool := NewMessageTool("", true)
 		ctx := WithToolWorkspace(context.Background(), workspace)
 
+		// Normalize expected path to handle macOS /var -> /private mapping
+		testFileNormalized := normalizePath(testFile)
+
 		got, ok := tool.resolveMediaPath(ctx, "MEDIA:docs/report.pdf")
 		if !ok {
 			t.Fatal("expected ok=true for workspace-relative path with context workspace")
 		}
-		if got != testFile {
-			t.Errorf("got %q, want %q", got, testFile)
+		if got != testFileNormalized {
+			t.Errorf("got %q, want %q", got, testFileNormalized)
 		}
 	})
 }

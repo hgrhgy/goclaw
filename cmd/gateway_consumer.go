@@ -344,7 +344,8 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 		})
 
 		// Handle result asynchronously to not block the flush callback.
-		go func(agentKey, channel, chatID, session, rID string, meta map[string]string, blockReplyEnabled bool) {
+		agentName := outMeta["agent_name"]
+		go func(agentKey, channel, chatID, session, rID, agentName string, meta map[string]string, blockReplyEnabled bool) {
 			outcome := <-outCh
 
 			// Clean up run tracking (in case HandleAgentEvent didn't fire for terminal events)
@@ -367,10 +368,11 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 				}
 				slog.Error("inbound: agent run failed", "error", outcome.Err, "channel", channel)
 				msgBus.PublishOutbound(bus.OutboundMessage{
-					Channel:  channel,
-					ChatID:   chatID,
-					Content:  formatAgentError(outcome.Err),
-					Metadata: meta,
+					Channel:   channel,
+					ChatID:    chatID,
+					Content:   formatAgentError(outcome.Err),
+					AgentName: meta["agent_name"],
+					Metadata:  meta,
 				})
 				return
 			}
@@ -409,10 +411,11 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 
 			// Publish response back to the channel
 			outMsg := bus.OutboundMessage{
-				Channel:  channel,
-				ChatID:   chatID,
-				Content:  outcome.Result.Content,
-				Metadata: meta,
+				Channel:   channel,
+				ChatID:    chatID,
+				Content:   outcome.Result.Content,
+				AgentName: meta["agent_name"],
+				Metadata:  meta,
 			}
 
 			appendMediaToOutbound(&outMsg, outcome.Result.Media)
@@ -423,7 +426,7 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 			if teamStore != nil && channel != tools.ChannelSystem && channel != tools.ChannelDelegate && channel != tools.ChannelDashboard {
 				go autoSetFollowup(ctx, teamStore, agentStore, agentKey, channel, chatID, outcome.Result.Content)
 			}
-		}(agentID, msg.Channel, msg.ChatID, sessionKey, runID, outMeta, blockReply)
+		}(agentID, msg.Channel, msg.ChatID, sessionKey, runID, agentName, outMeta, blockReply)
 	}
 
 	// Inbound debounce: merge rapid messages from the same sender before processing.

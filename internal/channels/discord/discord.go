@@ -147,6 +147,11 @@ func (c *Channel) Send(_ context.Context, msg bus.OutboundMessage) error {
 
 	content := msg.Content
 
+	// Prepend agent name if specified
+	if msg.AgentName != "" {
+		content = "**" + msg.AgentName + "**\n" + content
+	}
+
 	// Handle outbound media attachments: send files via Discord's file upload API.
 	if len(msg.Media) > 0 {
 		// Delete placeholder if present

@@ -13,6 +13,7 @@ export interface ChatMessage extends Message {
 export interface AgentEventPayload {
   type: string; // "run.started" | "run.completed" | "run.failed" | "chunk" | "tool.call" | "tool.result"
   agentId: string;
+  agentDisplayName?: string; // agent display name for messages
   runId: string;
   runKind?: string; // "delegation" | "announce" — omitted for user-initiated runs
   payload?: {
