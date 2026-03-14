@@ -189,6 +189,11 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 	// Send text content
 	text := msg.Content
 	if text != "" {
+		// Add agent name prefix if available
+		if agentName := msg.AgentName; agentName != "" {
+			text = "**" + agentName + "**\n" + text
+		}
+
 		// Resolve render mode
 		renderMode := c.cfg.RenderMode
 		if renderMode == "" {

@@ -317,11 +317,11 @@ func (c *Config) Hash() string {
 	return fmt.Sprintf("%x", h[:8])
 }
 
-// WorkspacePath returns the expanded workspace path.
+// WorkspacePath returns the expanded workspace path (using agents root if set).
 func (c *Config) WorkspacePath() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	return ExpandHome(c.Agents.Defaults.Workspace)
+	return c.Agents.ResolveAgentPath(c.Agents.Defaults.Workspace)
 }
 
 // ResolveAgent returns the effective config for a given agent ID,

@@ -38,10 +38,11 @@ type BootstrapCleanupFunc func(ctx context.Context, agentID uuid.UUID, userID st
 // Loop is the agent execution loop for one agent instance.
 // Think → Act → Observe cycle with tool execution.
 type Loop struct {
-	id            string
-	agentUUID     uuid.UUID // set for context propagation
-	agentType     string    // "open" or "predefined"
-	provider      providers.Provider
+	id               string
+	agentUUID        uuid.UUID // set for context propagation
+	agentType        string    // "open" or "predefined"
+	agentDisplayName string    // agent display name for messages
+	provider         providers.Provider
 	model         string
 	contextWindow int
 	maxIterations int
@@ -128,11 +129,12 @@ type Loop struct {
 
 // AgentEvent is emitted during agent execution for WS broadcasting.
 type AgentEvent struct {
-	Type    string `json:"type"` // "run.started", "run.completed", "run.failed", "chunk", "tool.call", "tool.result"
-	AgentID string `json:"agentId"`
-	RunID   string `json:"runId"`
-	RunKind string `json:"runKind,omitempty"` // "delegation", "announce" — omitted for user-initiated runs
-	Payload any    `json:"payload,omitempty"`
+	Type             string `json:"type"` // "run.started", "run.completed", "run.failed", "chunk", "tool.call", "tool.result"
+	AgentID          string `json:"agentId"`
+	AgentDisplayName string `json:"agentDisplayName,omitempty"` // agent display name for messages
+	RunID            string `json:"runId"`
+	RunKind          string `json:"runKind,omitempty"` // "delegation", "announce" — omitted for user-initiated runs
+	Payload          any    `json:"payload,omitempty"`
 
 	// Delegation context (omitempty — only present when agent runs inside a delegation)
 	DelegationID  string `json:"delegationId,omitempty"`
@@ -190,7 +192,8 @@ type LoopConfig struct {
 
 	// Agent UUID for context propagation to tools
 	AgentUUID uuid.UUID
-	AgentType string // "open" or "predefined"
+	AgentType       string // "open" or "predefined"
+	AgentDisplayName string // agent display name for messages
 
 	// Per-user file seeding + dynamic context loading
 	EnsureUserFiles   EnsureUserFilesFunc
@@ -258,6 +261,7 @@ func NewLoop(cfg LoopConfig) *Loop {
 		id:                     cfg.ID,
 		agentUUID:              cfg.AgentUUID,
 		agentType:              cfg.AgentType,
+		agentDisplayName:       cfg.AgentDisplayName,
 		provider:               cfg.Provider,
 		model:                  cfg.Model,
 		contextWindow:          cfg.ContextWindow,

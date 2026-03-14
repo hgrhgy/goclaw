@@ -17,14 +17,14 @@ import (
 
 // ProvidersHandler handles LLM provider CRUD endpoints.
 type ProvidersHandler struct {
-	store          store.ProviderStore
-	secretStore    store.ConfigSecretsStore
-	token          string
-	providerReg    *providers.Registry
-	gatewayAddr    string                    // for injecting MCP bridge into Claude CLI providers
-	mcpLookup      providers.MCPServerLookup // optional: resolves per-agent MCP servers
-	cliMu          sync.Mutex                // serializes Claude CLI provider create to prevent duplicates
-	msgBus         *bus.MessageBus
+	store       store.ProviderStore
+	secretStore store.ConfigSecretsStore
+	token       string
+	providerReg *providers.Registry
+	gatewayAddr string                    // for injecting MCP bridge into Claude CLI providers
+	mcpLookup   providers.MCPServerLookup // optional: resolves per-agent MCP servers
+	cliMu       sync.Mutex                // serializes Claude CLI provider create to prevent duplicates
+	msgBus      *bus.MessageBus
 }
 
 // NewProvidersHandler creates a handler for provider management endpoints.
@@ -296,19 +296,9 @@ func (h *ProvidersHandler) handleUpdateProvider(w http.ResponseWriter, r *http.R
 		}
 	}
 
-<<<<<<< HEAD
-	// Return the updated provider
-	updated, err := h.store.GetProvider(r.Context(), id)
-	if err != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
-		return
-	}
-	maskAPIKey(updated)
-	writeJSON(w, http.StatusOK, updated)
-=======
 	emitAudit(h.msgBus, r, "provider.updated", "provider", id.String())
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
->>>>>>> upstream/main
+
 }
 
 func (h *ProvidersHandler) handleDeleteProvider(w http.ResponseWriter, r *http.Request) {

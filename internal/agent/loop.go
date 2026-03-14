@@ -25,6 +25,7 @@ import (
 func (l *Loop) runLoop(ctx context.Context, req RunRequest) (*RunResult, error) {
 	// Per-run emit wrapper: enriches every AgentEvent with delegation + routing context.
 	emitRun := func(event AgentEvent) {
+		event.AgentDisplayName = l.agentDisplayName
 		event.RunKind = req.RunKind
 		event.DelegationID = req.DelegationID
 		event.TeamID = req.TeamID

@@ -198,6 +198,12 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 		// Build outbound metadata for reply-to + thread routing BEFORE RegisterRun
 		// so block.reply handler can use it for routing intermediate messages.
 		outMeta := make(map[string]string)
+		// Add agent display name to metadata for channel messages
+		if agentLoop, ok := agentLoop.(interface{ DisplayName() string }); ok {
+			if name := agentLoop.DisplayName(); name != "" {
+				outMeta["agent_name"] = name
+			}
+		}
 		if isGroup {
 			if mid := msg.Metadata["message_id"]; mid != "" {
 				outMeta["reply_to_message_id"] = mid

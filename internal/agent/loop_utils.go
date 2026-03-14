@@ -83,3 +83,8 @@ func (l *Loop) ProviderName() string {
 	}
 	return l.provider.Name()
 }
+
+// DisplayName returns the display name of this agent.
+func (l *Loop) DisplayName() string {
+	return l.agentDisplayName
+}

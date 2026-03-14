@@ -360,6 +360,7 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 			ID:                     ag.AgentKey,
 			AgentUUID:              ag.ID,
 			AgentType:              ag.AgentType,
+			AgentDisplayName:       ag.DisplayName,
 			Provider:               provider,
 			Model:                  ag.Model,
 			ContextWindow:          contextWindow,

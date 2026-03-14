@@ -73,6 +73,7 @@ func runGateway() {
 
 	// Resolve workspace (must be absolute for system prompt + file tool path resolution)
 	workspace := cfg.Agents.ResolveAgentPath(cfg.Agents.Defaults.Workspace)
+	slog.Info("workspace config", "root", cfg.Agents.Root, "defaultWorkspace", cfg.Agents.Defaults.Workspace, "resolved", workspace)
 	os.MkdirAll(workspace, 0755)
 
 	// Bootstrap files live in Postgres.

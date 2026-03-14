@@ -20,6 +20,7 @@ export function useChatMessages(sessionKey: string, agentId: string) {
   const [toolStream, setToolStream] = useState<ToolStreamEntry[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [agentDisplayName, setAgentDisplayName] = useState<string | null>(null);
 
   // Use refs for values accessed inside the event handler to avoid stale closures.
   const runIdRef = useRef<string | null>(null);
@@ -153,6 +154,10 @@ export function useChatMessages(sessionKey: string, agentId: string) {
           const content = event.payload?.content ?? "";
           streamRef.current += content;
           setStreamText(streamRef.current);
+          // Capture agent display name from event
+          if (event.agentDisplayName) {
+            setAgentDisplayName(event.agentDisplayName);
+          }
           break;
         }
         case "tool.call": {
@@ -201,6 +206,7 @@ export function useChatMessages(sessionKey: string, agentId: string) {
           setStreamText(null);
           setThinkingText(null);
           setToolStream([]);
+          setAgentDisplayName(null);
           streamRef.current = "";
           thinkingRef.current = "";
           toolStreamRef.current = [];
@@ -252,6 +258,7 @@ export function useChatMessages(sessionKey: string, agentId: string) {
     toolStream,
     isRunning,
     loading,
+    agentDisplayName,
     expectRun,
     loadHistory,
     addLocalMessage,

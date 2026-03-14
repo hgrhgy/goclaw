@@ -10,4 +10,5 @@ type Agent interface {
 	IsRunning() bool
 	Model() string
 	ProviderName() string
+	DisplayName() string
 }

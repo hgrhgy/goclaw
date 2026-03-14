@@ -46,6 +46,7 @@ export function ChatPage() {
     toolStream,
     isRunning,
     loading: messagesLoading,
+    agentDisplayName,
     expectRun,
     addLocalMessage,
   } = useChatMessages(sessionKey, agentId);
@@ -213,6 +214,7 @@ export function ChatPage() {
           toolStream={toolStream}
           isRunning={isRunning}
           loading={messagesLoading}
+          agentDisplayName={agentDisplayName}
           scrollTrigger={scrollTrigger}
         />
 
