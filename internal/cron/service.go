@@ -67,7 +67,7 @@ func (cs *Service) Start() error {
 			job.State.NextRunAtMS = next
 		}
 	}
-	cs.saveUnsafe()
+	_ = cs.saveUnsafe()
 
 	cs.stopChan = make(chan struct{})
 	cs.running = true
@@ -125,7 +125,7 @@ func (cs *Service) AddJob(name string, schedule Schedule, message string, delive
 	job.State.NextRunAtMS = next
 
 	cs.store.Jobs = append(cs.store.Jobs, job)
-	cs.saveUnsafe()
+	_ = cs.saveUnsafe()
 
 	slog.Info("cron job added", "id", job.ID, "name", name, "kind", schedule.Kind)
 	return &job, nil
@@ -139,7 +139,7 @@ func (cs *Service) RemoveJob(jobID string) error {
 	for i, job := range cs.store.Jobs {
 		if job.ID == jobID {
 			cs.store.Jobs = append(cs.store.Jobs[:i], cs.store.Jobs[i+1:]...)
-			cs.saveUnsafe()
+			_ = cs.saveUnsafe()
 			slog.Info("cron job removed", "id", jobID)
 			return nil
 		}
@@ -162,7 +162,7 @@ func (cs *Service) EnableJob(jobID string, enabled bool) error {
 			} else {
 				cs.store.Jobs[i].State.NextRunAtMS = nil
 			}
-			cs.saveUnsafe()
+			_ = cs.saveUnsafe()
 			slog.Info("cron job toggled", "id", jobID, "enabled", enabled)
 			return nil
 		}
@@ -250,7 +250,7 @@ func (cs *Service) UpdateJob(jobID string, patch JobPatch) (*Job, error) {
 			job.State.NextRunAtMS = nil
 		}
 
-		cs.saveUnsafe()
+		_ = cs.saveUnsafe()
 		slog.Info("cron job updated", "id", jobID)
 		result := cs.store.Jobs[i] // copy
 		return &result, nil

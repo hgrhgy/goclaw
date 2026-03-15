@@ -22,8 +22,8 @@ func TestProviderAPI_List(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "test-provider",
 		ProviderType: store.ProviderOpenAICompat,
-		APIKey:      "sk-test",
-		Enabled:     true,
+		APIKey:       "sk-test",
+		Enabled:      true,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 
@@ -50,8 +50,8 @@ func TestProviderAPI_Create(t *testing.T) {
 	body := map[string]interface{}{
 		"name":          "new-provider",
 		"provider_type": "openai_compat",
-		"api_key":      "sk-test123",
-		"enabled":      true,
+		"api_key":       "sk-test123",
+		"enabled":       true,
 	}
 	jsonBody, _ := json.Marshal(body)
 
@@ -77,8 +77,8 @@ func TestProviderAPI_Get(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "get-test",
 		ProviderType: store.ProviderOpenAICompat,
-		APIKey:      "sk-secret",
-		Enabled:     true,
+		APIKey:       "sk-secret",
+		Enabled:      true,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 
@@ -98,8 +98,8 @@ func TestProviderAPI_Update(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "update-test",
 		ProviderType: store.ProviderOpenAICompat,
-		APIKey:      "sk-old",
-		Enabled:     false,
+		APIKey:       "sk-old",
+		Enabled:      false,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 
@@ -126,7 +126,7 @@ func TestProviderAPI_Delete(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "delete-test",
 		ProviderType: store.ProviderOpenAICompat,
-		Enabled:     true,
+		Enabled:      true,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 
@@ -146,8 +146,8 @@ func TestProviderAPI_GetModels(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "minimax-test",
 		ProviderType: store.ProviderMiniMax,
-		APIKey:      "sk-test",
-		Enabled:     true,
+		APIKey:       "sk-test",
+		Enabled:      true,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 
@@ -173,8 +173,8 @@ func TestProviderAPI_Verify(t *testing.T) {
 	provider := &store.LLMProviderData{
 		Name:         "verify-test",
 		ProviderType: store.ProviderOpenAICompat,
-		APIKey:      "sk-test",
-		Enabled:     true,
+		APIKey:       "sk-test",
+		Enabled:      true,
 	}
 	h.store.CreateProvider(context.Background(), provider)
 

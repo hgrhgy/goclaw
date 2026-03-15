@@ -30,12 +30,12 @@ type InboundMessage struct {
 
 // OutboundMessage represents a message to be sent to a channel.
 type OutboundMessage struct {
-	Channel      string            `json:"channel"`
-	ChatID       string            `json:"chat_id"`
-	Content      string            `json:"content"`
-	AgentName    string            `json:"agent_name,omitempty"`    // agent display name for message prefix
-	Media       []MediaAttachment `json:"media,omitempty"`    // optional media attachments
-	Metadata    map[string]string `json:"metadata,omitempty"` // channel-specific metadata
+	Channel   string            `json:"channel"`
+	ChatID    string            `json:"chat_id"`
+	Content   string            `json:"content"`
+	AgentName string            `json:"agent_name,omitempty"` // agent display name for message prefix
+	Media     []MediaAttachment `json:"media,omitempty"`      // optional media attachments
+	Metadata  map[string]string `json:"metadata,omitempty"`   // channel-specific metadata
 }
 
 // MediaAttachment represents a media file to be sent with a message.

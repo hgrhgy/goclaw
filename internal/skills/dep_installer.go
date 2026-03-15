@@ -129,6 +129,6 @@ func InstallDeps(ctx context.Context, manifest *SkillManifest, missing []string)
 
 // cleanCaches removes pip and npm caches to save disk space.
 func cleanCaches(ctx context.Context) {
-	exec.CommandContext(ctx, "pip3", "cache", "purge").Run()           //nolint:errcheck
-	exec.CommandContext(ctx, "rm", "-rf", "/tmp/npm-*").Run()          //nolint:errcheck
+	exec.CommandContext(ctx, "pip3", "cache", "purge").Run()  //nolint:errcheck
+	exec.CommandContext(ctx, "rm", "-rf", "/tmp/npm-*").Run() //nolint:errcheck
 }

@@ -288,8 +288,8 @@ type agentMemoryCounts struct {
 
 // agentKGCounts holds point-in-time KG counts for one agent.
 type agentKGCounts struct {
-	AgentID  uuid.UUID
-	Entities int
+	AgentID   uuid.UUID
+	Entities  int
 	Relations int
 }
 

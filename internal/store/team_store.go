@@ -64,8 +64,8 @@ type TeamData struct {
 	CreatedBy   string          `json:"created_by"`
 
 	// Joined fields (populated by queries that JOIN agents table)
-	LeadAgentKey     string `json:"lead_agent_key,omitempty"`
-	LeadDisplayName  string `json:"lead_display_name,omitempty"`
+	LeadAgentKey    string `json:"lead_agent_key,omitempty"`
+	LeadDisplayName string `json:"lead_display_name,omitempty"`
 }
 
 // TeamMemberData represents a team member.
@@ -97,17 +97,17 @@ type TeamTaskData struct {
 	Channel      string         `json:"channel,omitempty"`
 
 	// V2 fields
-	TaskType        string     `json:"task_type"`
-	TaskNumber      int        `json:"task_number,omitempty"`
-	Identifier      string     `json:"identifier,omitempty"`
+	TaskType         string     `json:"task_type"`
+	TaskNumber       int        `json:"task_number,omitempty"`
+	Identifier       string     `json:"identifier,omitempty"`
 	CreatedByAgentID *uuid.UUID `json:"created_by_agent_id,omitempty"`
-	AssigneeUserID  string     `json:"assignee_user_id,omitempty"`
-	ParentID        *uuid.UUID `json:"parent_id,omitempty"`
-	ChatID          string     `json:"chat_id,omitempty"`
-	LockedAt        *time.Time `json:"locked_at,omitempty"`
-	LockExpiresAt   *time.Time `json:"lock_expires_at,omitempty"`
-	ProgressPercent int        `json:"progress_percent,omitempty"`
-	ProgressStep    string     `json:"progress_step,omitempty"`
+	AssigneeUserID   string     `json:"assignee_user_id,omitempty"`
+	ParentID         *uuid.UUID `json:"parent_id,omitempty"`
+	ChatID           string     `json:"chat_id,omitempty"`
+	LockedAt         *time.Time `json:"locked_at,omitempty"`
+	LockExpiresAt    *time.Time `json:"lock_expires_at,omitempty"`
+	ProgressPercent  int        `json:"progress_percent,omitempty"`
+	ProgressStep     string     `json:"progress_step,omitempty"`
 
 	// Follow-up reminder fields
 	FollowupAt      *time.Time `json:"followup_at,omitempty"`

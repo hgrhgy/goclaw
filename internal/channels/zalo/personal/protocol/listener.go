@@ -31,8 +31,8 @@ type Listener struct {
 	client      *WSClient
 	cipherKey   string
 	connectedAt time.Time
-	stopped     bool         // prevents reconnect after Stop()
-	reconnTimer *time.Timer  // pending reconnect timer, cancelled on Stop()
+	stopped     bool        // prevents reconnect after Stop()
+	reconnTimer *time.Timer // pending reconnect timer, cancelled on Stop()
 
 	retryStates map[string]*retryState
 
@@ -93,7 +93,7 @@ func NewListener(sess *Session) (*Listener, error) {
 }
 
 // Channel accessors.
-func (ln *Listener) Messages() <-chan Message      { return ln.messageCh }
+func (ln *Listener) Messages() <-chan Message       { return ln.messageCh }
 func (ln *Listener) Disconnected() <-chan CloseInfo { return ln.disconnectedCh }
 func (ln *Listener) Closed() <-chan CloseInfo       { return ln.closedCh }
 func (ln *Listener) Errors() <-chan error           { return ln.errorCh }
@@ -131,7 +131,7 @@ func (ln *Listener) Start(ctx context.Context) error {
 	// Set initial read deadline for the cipher key handshake message.
 	// Without this, ReadMessage blocks indefinitely if the server never responds.
 	// The deadline is cleared once the ping loop starts (cipher key received).
-	client.conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+	_ = client.conn.SetReadDeadline(time.Now().Add(30 * time.Second))
 
 	ln.client = client
 	ln.connectedAt = time.Now()
@@ -266,7 +266,7 @@ func (ln *Listener) handleCipherKey(ctx context.Context, key *string) {
 	ln.cipherKey = *key
 	// Clear initial handshake deadline; ping loop manages deadlines from here.
 	if ln.client != nil {
-		ln.client.conn.SetReadDeadline(time.Time{})
+		_ = ln.client.conn.SetReadDeadline(time.Time{})
 	}
 	ln.mu.Unlock()
 
@@ -282,4 +282,3 @@ func (ln *Listener) handleCipherKey(ctx context.Context, key *string) {
 		}
 	}
 }
-

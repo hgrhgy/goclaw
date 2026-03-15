@@ -37,7 +37,7 @@ type Channel struct {
 	historyLimit     int
 	requireMention   bool
 	pollCancel       context.CancelFunc // cancels the long polling context
-	pollDone         chan struct{}       // closed when polling goroutine exits
+	pollDone         chan struct{}      // closed when polling goroutine exits
 }
 
 type thinkingCancel struct {

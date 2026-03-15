@@ -286,4 +286,3 @@ func stripCodeBlock(s string) string {
 	}
 	return strings.TrimSpace(s)
 }
-

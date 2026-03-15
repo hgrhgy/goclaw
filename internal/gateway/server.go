@@ -35,13 +35,13 @@ type Server struct {
 	tools    *tools.Registry
 	router   *MethodRouter
 
-	policyEngine   *permissions.PolicyEngine
-	pairingService store.PairingStore
-	agentsHandler  *httpapi.AgentsHandler // agent CRUD API
-	skillsHandler  *httpapi.SkillsHandler // skill management API
-	tracesHandler  *httpapi.TracesHandler // LLM trace listing API
-	wakeHandler    *httpapi.WakeHandler  // external wake/trigger API
-	mcpHandler         *httpapi.MCPHandler         // MCP server management API
+	policyEngine            *permissions.PolicyEngine
+	pairingService          store.PairingStore
+	agentsHandler           *httpapi.AgentsHandler           // agent CRUD API
+	skillsHandler           *httpapi.SkillsHandler           // skill management API
+	tracesHandler           *httpapi.TracesHandler           // LLM trace listing API
+	wakeHandler             *httpapi.WakeHandler             // external wake/trigger API
+	mcpHandler              *httpapi.MCPHandler              // MCP server management API
 	customToolsHandler      *httpapi.CustomToolsHandler      // custom tool CRUD API
 	channelInstancesHandler *httpapi.ChannelInstancesHandler // channel instance CRUD API
 	providersHandler        *httpapi.ProvidersHandler        // provider CRUD API
@@ -57,8 +57,8 @@ type Server struct {
 	mediaServeHandler       *httpapi.MediaServeHandler       // media serve endpoint
 	activityHandler         *httpapi.ActivityHandler         // activity audit log API
 	usageHandler            *httpapi.UsageHandler            // usage analytics API
-	agentStore         store.AgentStore             // for context injection in tools_invoke
-	msgBus             *bus.MessageBus              // for MCP bridge media delivery
+	agentStore              store.AgentStore                 // for context injection in tools_invoke
+	msgBus                  *bus.MessageBus                  // for MCP bridge media delivery
 
 	upgrader    websocket.Upgrader
 	rateLimiter *RateLimiter

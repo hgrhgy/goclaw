@@ -31,7 +31,7 @@ func (c *LarkClient) SendMessage(ctx context.Context, receiveIDType, receiveID, 
 		return nil, fmt.Errorf("send message: code=%d msg=%s", resp.Code, resp.Msg)
 	}
 	var data SendMessageResp
-	json.Unmarshal(resp.Data, &data)
+	_ = json.Unmarshal(resp.Data, &data)
 	return &data, nil
 }
 
@@ -56,7 +56,7 @@ func (c *LarkClient) UploadImage(ctx context.Context, data io.Reader) (string, e
 	var result struct {
 		ImageKey string `json:"image_key"`
 	}
-	json.Unmarshal(resp.Data, &result)
+	_ = json.Unmarshal(resp.Data, &result)
 	return result.ImageKey, nil
 }
 
@@ -80,7 +80,7 @@ func (c *LarkClient) UploadFile(ctx context.Context, data io.Reader, fileName, f
 	var result struct {
 		FileKey string `json:"file_key"`
 	}
-	json.Unmarshal(resp.Data, &result)
+	_ = json.Unmarshal(resp.Data, &result)
 	return result.FileKey, nil
 }
 
@@ -211,9 +211,9 @@ func (c *LarkClient) GetBotInfo(ctx context.Context) (string, error) {
 
 	// Parse the response directly - bot API returns {"code":0,"msg":"ok","bot":{...}}
 	var result struct {
-		Code    int    `json:"code"`
-		Msg     string `json:"msg"`
-		Bot     struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+		Bot  struct {
 			OpenID string `json:"open_id"`
 		} `json:"bot"`
 	}

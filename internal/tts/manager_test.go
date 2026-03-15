@@ -51,10 +51,10 @@ func TestNewManager(t *testing.T) {
 func TestNewManagerDefaults(t *testing.T) {
 	m := NewManager(ManagerConfig{Primary: "test"})
 
-	assert.Equal(t, AutoOff, m.auto)       // default
-	assert.Equal(t, ModeFinal, m.mode)     // default
-	assert.Equal(t, 1500, m.maxLength)     // default
-	assert.Equal(t, 30000, m.timeoutMs)    // default
+	assert.Equal(t, AutoOff, m.auto)    // default
+	assert.Equal(t, ModeFinal, m.mode)  // default
+	assert.Equal(t, 1500, m.maxLength)  // default
+	assert.Equal(t, 30000, m.timeoutMs) // default
 }
 
 func TestManagerRegisterProvider(t *testing.T) {

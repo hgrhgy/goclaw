@@ -91,7 +91,7 @@ type JobHandler func(job *Job) (string, error)
 // generateID creates a random 8-byte hex ID for a new job.
 func generateID() string {
 	b := make([]byte, 8)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
 

@@ -85,7 +85,7 @@ func (c *Channel) Send(_ context.Context, msg bus.OutboundMessage) error {
 		if err := c.uploadFile(channelID, threadTS, media); err != nil {
 			slog.Warn("slack: file upload failed",
 				"file", media.URL, "error", err)
-			c.sendChunked(channelID, fmt.Sprintf("[File upload failed: %s]", media.URL), threadTS)
+			_ = c.sendChunked(channelID, fmt.Sprintf("[File upload failed: %s]", media.URL), threadTS)
 		}
 	}
 

@@ -74,7 +74,7 @@ func (cs *Service) RunJob(jobID string, force bool) (bool, string, error) {
 			next := cs.computeNextRun(&cs.store.Jobs[i].Schedule, now)
 			cs.store.Jobs[i].State.NextRunAtMS = next
 		}
-		cs.saveUnsafe()
+		_ = cs.saveUnsafe()
 		break
 	}
 
@@ -173,7 +173,7 @@ func (cs *Service) checkJobs() {
 			cs.store.Jobs[i].State.NextRunAtMS = nil
 		}
 	}
-	cs.saveUnsafe()
+	_ = cs.saveUnsafe()
 	cs.mu.Unlock()
 
 	// Execute jobs in parallel — scheduler enforces per-session serialization
@@ -249,7 +249,7 @@ func (cs *Service) executeJobByID(jobID string) {
 		break
 	}
 
-	cs.saveUnsafe()
+	_ = cs.saveUnsafe()
 }
 
 // --- Schedule computation ---

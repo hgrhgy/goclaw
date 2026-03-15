@@ -43,18 +43,18 @@ type Loop struct {
 	agentType        string    // "open" or "predefined"
 	agentDisplayName string    // agent display name for messages
 	provider         providers.Provider
-	model         string
-	contextWindow int
-	maxIterations int
-	maxToolCalls  int
+	model            string
+	contextWindow    int
+	maxIterations    int
+	maxToolCalls     int
 	workspace        string
 	workspaceSharing *store.WorkspaceSharingConfig
 
 	// Per-agent overrides from DB (nil = use global defaults)
-	restrictToWs  *bool
-	subagentsCfg  *config.SubagentsConfig
-	memoryCfg     *config.MemoryConfig
-	sandboxCfg    *sandbox.Config
+	restrictToWs *bool
+	subagentsCfg *config.SubagentsConfig
+	memoryCfg    *config.MemoryConfig
+	sandboxCfg   *sandbox.Config
 
 	eventPub        bus.EventPublisher // currently unused by Loop; kept for future use
 	sessions        store.SessionStore
@@ -150,12 +150,12 @@ type AgentEvent struct {
 
 // LoopConfig configures a new Loop.
 type LoopConfig struct {
-	ID              string
-	Provider        providers.Provider
-	Model           string
-	ContextWindow   int
-	MaxIterations   int
-	MaxToolCalls    int
+	ID               string
+	Provider         providers.Provider
+	Model            string
+	ContextWindow    int
+	MaxIterations    int
+	MaxToolCalls     int
 	Workspace        string
 	WorkspaceSharing *store.WorkspaceSharingConfig
 
@@ -191,8 +191,8 @@ type LoopConfig struct {
 	SandboxWorkspaceAccess string // "none", "ro", "rw"
 
 	// Agent UUID for context propagation to tools
-	AgentUUID uuid.UUID
-	AgentType       string // "open" or "predefined"
+	AgentUUID        uuid.UUID
+	AgentType        string // "open" or "predefined"
 	AgentDisplayName string // agent display name for messages
 
 	// Per-user file seeding + dynamic context loading

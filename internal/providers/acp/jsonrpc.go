@@ -142,7 +142,7 @@ func (c *Conn) handleRequest(msg *jsonrpcMessage) {
 		}
 	}
 
-	c.writeMessage(&resp)
+	_ = c.writeMessage(&resp)
 }
 
 // Call sends a JSON-RPC request and blocks until the response arrives.

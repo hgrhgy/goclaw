@@ -106,7 +106,7 @@ func (m *Manager) Wait(ctx context.Context, targetID string, opts WaitOpts) erro
 	// Wait for text to appear
 	if opts.Text != "" {
 		return rod.Try(func() {
-			page.Timeout(30 * time.Second).MustElementR("*", opts.Text)
+			page.Timeout(30*time.Second).MustElementR("*", opts.Text)
 		})
 	}
 

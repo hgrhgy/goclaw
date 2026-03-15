@@ -124,8 +124,18 @@ func (dm *DelegateManager) DelegateAsync(ctx context.Context, opts DelegateOpts)
 							UserID:            task.UserID,
 							Channel:           task.OriginChannel,
 							ChatID:            task.OriginChatID,
-							TeamID:            func() string { if task.TeamID != uuid.Nil { return task.TeamID.String() }; return "" }(),
-							TeamTaskID:        func() string { if task.TeamTaskID != uuid.Nil { return task.TeamTaskID.String() }; return "" }(),
+							TeamID: func() string {
+								if task.TeamID != uuid.Nil {
+									return task.TeamID.String()
+								}
+								return ""
+							}(),
+							TeamTaskID: func() string {
+								if task.TeamTaskID != uuid.Nil {
+									return task.TeamTaskID.String()
+								}
+								return ""
+							}(),
 							SiblingsRemaining: siblingCount,
 							ElapsedMS:         int(time.Since(task.CreatedAt).Milliseconds()),
 						},
@@ -193,13 +203,18 @@ func (dm *DelegateManager) DelegateAsync(ctx context.Context, opts DelegateOpts)
 						SourceAgentKey:    task.SourceAgentKey,
 						SourceDisplayName: task.SourceDisplayName,
 						UserID:            task.UserID,
-						Channel:        task.OriginChannel,
-						ChatID:         task.OriginChatID,
-						TeamID:         func() string { if task.TeamID != uuid.Nil { return task.TeamID.String() }; return "" }(),
-						Results:        announceSummaries,
+						Channel:           task.OriginChannel,
+						ChatID:            task.OriginChatID,
+						TeamID: func() string {
+							if task.TeamID != uuid.Nil {
+								return task.TeamID.String()
+							}
+							return ""
+						}(),
+						Results:          announceSummaries,
 						CompletedTaskIDs: artifacts.CompletedTaskIDs,
-						TotalElapsedMS: int(elapsed.Milliseconds()),
-						HasMedia:       hasMedia,
+						TotalElapsedMS:   int(elapsed.Milliseconds()),
+						HasMedia:         hasMedia,
 					},
 				})
 

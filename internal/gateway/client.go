@@ -29,10 +29,10 @@ type Client struct {
 	locale string // user's preferred locale (e.g. "en", "vi", "zh")
 
 	// Browser pairing state
-	pairingCode     string // 8-char code if pending approval
-	pairingPending  bool   // true while waiting for admin approval
-	pairedSenderID  string // senderID used for browser pairing auth (for revocation lookup)
-	pairedChannel   string // channel used for pairing auth (e.g., "browser")
+	pairingCode    string // 8-char code if pending approval
+	pairingPending bool   // true while waiting for admin approval
+	pairedSenderID string // senderID used for browser pairing auth (for revocation lookup)
+	pairedChannel  string // channel used for pairing auth (e.g., "browser")
 }
 
 func NewClient(conn *websocket.Conn, server *Server, remoteIP string) *Client {

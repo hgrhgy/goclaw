@@ -22,7 +22,7 @@ var sensitiveEnvExact = map[string]bool{
 	"DB_DSN": true, "PGPASSWORD": true, "PGUSER": true, "PGHOST": true,
 	"NPM_TOKEN": true, "NPM_CONFIG_TOKEN": true,
 	"HOMEBREW_GITHUB_API_TOKEN": true,
-	"CODECOV_TOKEN": true, "COVERALLS_REPO_TOKEN": true,
+	"CODECOV_TOKEN":             true, "COVERALLS_REPO_TOKEN": true,
 	"SENTRY_DSN": true, "SENTRY_AUTH_TOKEN": true,
 	"SECRET_KEY": true, "JWT_SECRET": true,
 }

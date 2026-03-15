@@ -18,7 +18,7 @@ type ACPProvider struct {
 	pool         *acp.ProcessPool
 	bridge       *acp.ToolBridge
 	defaultModel string
-	permMode     string // permission mode for tool bridge
+	permMode     string   // permission mode for tool bridge
 	sessionMu    sync.Map // sessionKey → *sync.Mutex
 }
 

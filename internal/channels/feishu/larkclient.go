@@ -216,7 +216,7 @@ func (c *LarkClient) doMultipart(ctx context.Context, path string, fields map[st
 	writer := multipart.NewWriter(&buf)
 
 	for k, v := range fields {
-		writer.WriteField(k, v)
+		_ = writer.WriteField(k, v)
 	}
 
 	if fileField != "" && fileData != nil {

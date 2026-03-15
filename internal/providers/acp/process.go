@@ -55,7 +55,7 @@ type ProcessPool struct {
 	agentArgs   []string
 	workDir     string
 	idleTTL     time.Duration
-	mu          sync.RWMutex   // protects toolHandler
+	mu          sync.RWMutex // protects toolHandler
 	toolHandler RequestHandler
 	done        chan struct{}
 	closeOnce   sync.Once
@@ -234,4 +234,3 @@ func (pp *ProcessPool) Close() error {
 	})
 	return nil
 }
-

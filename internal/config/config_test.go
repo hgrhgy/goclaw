@@ -102,7 +102,7 @@ func TestNormalizeAgentID(t *testing.T) {
 		{
 			name:     "truncated to 64 chars",
 			input:    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", // 65 a's
-			expected: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", // 64 a's
+			expected: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",  // 64 a's
 		},
 		{
 			name:     "empty string returns default",
@@ -273,8 +273,8 @@ func TestConfigResolveAgent(t *testing.T) {
 	cfg.Agents.List = map[string]AgentSpec{
 		"custom": {
 			Provider:    "openai",
-			Model:      "gpt-4",
-			MaxTokens:  4096,
+			Model:       "gpt-4",
+			MaxTokens:   4096,
 			Temperature: 0.9,
 		},
 	}
@@ -363,33 +363,33 @@ func TestAgentsConfigResolveAgentPath(t *testing.T) {
 
 func TestSandboxConfigToSandboxConfig(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    *SandboxConfig
+		name         string
+		input        *SandboxConfig
 		expectedMode string
 	}{
 		{
-			name:     "nil returns default",
-			input:    nil,
+			name:         "nil returns default",
+			input:        nil,
 			expectedMode: "off",
 		},
 		{
-			name:     "mode all",
-			input:    &SandboxConfig{Mode: "all"},
+			name:         "mode all",
+			input:        &SandboxConfig{Mode: "all"},
 			expectedMode: "all",
 		},
 		{
-			name:     "mode non-main",
-			input:    &SandboxConfig{Mode: "non-main"},
+			name:         "mode non-main",
+			input:        &SandboxConfig{Mode: "non-main"},
 			expectedMode: "non-main",
 		},
 		{
-			name:     "workspace access ro",
-			input:    &SandboxConfig{WorkspaceAccess: "ro"},
+			name:         "workspace access ro",
+			input:        &SandboxConfig{WorkspaceAccess: "ro"},
 			expectedMode: "off",
 		},
 		{
-			name:     "workspace access rw",
-			input:    &SandboxConfig{WorkspaceAccess: "rw"},
+			name:         "workspace access rw",
+			input:        &SandboxConfig{WorkspaceAccess: "rw"},
 			expectedMode: "off",
 		},
 	}

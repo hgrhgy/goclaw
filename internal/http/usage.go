@@ -245,4 +245,3 @@ func parseSnapshotFilters(r *http.Request) store.SnapshotQuery {
 	q.GroupBy = r.URL.Query().Get("group_by")
 	return q
 }
-

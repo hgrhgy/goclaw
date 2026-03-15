@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { WsClient, type ConnectionState } from "@/api/ws-client";
 import { HttpClient } from "@/api/http-client";
 import { WsContext } from "@/hooks/use-ws";
@@ -45,11 +45,9 @@ export function WsProvider({ children }: { children: React.ReactNode }) {
   const userId = useAuthStore((s) => s.userId);
   const senderID = useAuthStore((s) => s.senderID);
 
-  const wsRef = useRef<WsClient | null>(null);
-
-  // Create WsClient once - survives StrictMode remounts
-  if (!wsRef.current) {
-    wsRef.current = new WsClient(
+  // Use lazy initialization to create WsClient once
+  const [ws] = useState(() => {
+    const client = new WsClient(
       WS_URL,
       () => useAuthStore.getState().token,
       () => useAuthStore.getState().userId,
@@ -58,11 +56,11 @@ export function WsProvider({ children }: { children: React.ReactNode }) {
         useAuthStore.getState().setConnected(state === "connected");
       },
     );
-    wsRef.current.onAuthFailure = () => {
+    client.onAuthFailure = () => {
       useAuthStore.getState().logout();
     };
-  }
-  const ws = wsRef.current;
+    return client;
+  });
 
   const http = useMemo(() => {
     const client = new HttpClient(

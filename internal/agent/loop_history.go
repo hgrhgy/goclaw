@@ -285,6 +285,7 @@ func limitHistoryTurns(msgs []providers.Message, limit int) []providers.Message 
 //   - Orphaned tool messages at start of history (after truncation)
 //   - tool_result without matching tool_use in preceding assistant message
 //   - assistant with tool_calls but missing tool_results
+//
 // sanitizeHistory repairs tool_use/tool_result pairing in session history.
 // Returns the cleaned messages and the number of messages that were dropped or synthesized.
 func sanitizeHistory(msgs []providers.Message) ([]providers.Message, int) {

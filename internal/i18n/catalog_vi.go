@@ -81,12 +81,12 @@ func init() {
 		MsgNotImplemented: "%s chưa được triển khai",
 
 		// Agent links
-		MsgLinksNotConfigured:   "liên kết agent chưa được cấu hình",
-		MsgInvalidDirection:     "hướng phải là outbound, inbound hoặc bidirectional",
-		MsgSourceTargetSame:     "nguồn và đích phải là các agent khác nhau",
-		MsgCannotDelegateOpen:   "không thể ủy quyền cho agent mở — chỉ agent định sẵn mới có thể là đích ủy quyền",
-		MsgNoUpdatesProvided:    "không có cập nhật nào được cung cấp",
-		MsgInvalidLinkStatus:    "trạng thái phải là active hoặc disabled",
+		MsgLinksNotConfigured: "liên kết agent chưa được cấu hình",
+		MsgInvalidDirection:   "hướng phải là outbound, inbound hoặc bidirectional",
+		MsgSourceTargetSame:   "nguồn và đích phải là các agent khác nhau",
+		MsgCannotDelegateOpen: "không thể ủy quyền cho agent mở — chỉ agent định sẵn mới có thể là đích ủy quyền",
+		MsgNoUpdatesProvided:  "không có cập nhật nào được cung cấp",
+		MsgInvalidLinkStatus:  "trạng thái phải là active hoặc disabled",
 
 		// Teams
 		MsgTeamsNotConfigured:   "nhóm chưa được cấu hình",

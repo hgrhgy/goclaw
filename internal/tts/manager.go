@@ -198,12 +198,12 @@ func stripMarkdown(text string) string {
 	// Remove inline code
 	text = regexp.MustCompile("`([^`]+)`").ReplaceAllString(text, "$1")
 	// Bold/italic → content only
-	text = regexp.MustCompile("\\*\\*([^*]+)\\*\\*").ReplaceAllString(text, "$1")
-	text = regexp.MustCompile("\\*([^*]+)\\*").ReplaceAllString(text, "$1")
-	text = regexp.MustCompile("__([^_]+)__").ReplaceAllString(text, "$1")
-	text = regexp.MustCompile("_([^_]+)_").ReplaceAllString(text, "$1")
+	text = regexp.MustCompile(`\*\*([^*]+)\*\*`).ReplaceAllString(text, "$1")
+	text = regexp.MustCompile(`\*([^*]+)\*`).ReplaceAllString(text, "$1")
+	text = regexp.MustCompile(`__([^_]+)__`).ReplaceAllString(text, "$1")
+	text = regexp.MustCompile(`_([^_]+)_`).ReplaceAllString(text, "$1")
 	// Links → text only
-	text = regexp.MustCompile("\\[([^\\]]+)\\]\\([^)]+\\)").ReplaceAllString(text, "$1")
+	text = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`).ReplaceAllString(text, "$1")
 	// Headers → content
 	text = regexp.MustCompile("(?m)^#+\\s+").ReplaceAllString(text, "")
 	return text

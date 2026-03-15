@@ -27,7 +27,7 @@ type telegramInstanceConfig struct {
 	HistoryLimit    int      `json:"history_limit,omitempty"`
 	DMStream        *bool    `json:"dm_stream,omitempty"`
 	GroupStream     *bool    `json:"group_stream,omitempty"`
-	DraftTransport  *bool    `json:"draft_transport,omitempty"`   // sendMessageDraft for DM streaming (default true)
+	DraftTransport  *bool    `json:"draft_transport,omitempty"`  // sendMessageDraft for DM streaming (default true)
 	ReasoningStream *bool    `json:"reasoning_stream,omitempty"` // show reasoning as separate message (default true)
 	ReactionLevel   string   `json:"reaction_level,omitempty"`
 	MediaMaxMB      int64    `json:"media_max_mb,omitempty"`
@@ -82,23 +82,23 @@ func buildChannel(name string, creds json.RawMessage, cfg json.RawMessage,
 	}
 
 	tgCfg := config.TelegramConfig{
-		Enabled:        true,
-		Token:          c.Token,
-		Proxy:          proxy,
-		APIServer:      apiServer,
-		AllowFrom:      ic.AllowFrom,
-		DMPolicy:       ic.DMPolicy,
-		GroupPolicy:    ic.GroupPolicy,
-		RequireMention: ic.RequireMention,
-		HistoryLimit:   ic.HistoryLimit,
+		Enabled:         true,
+		Token:           c.Token,
+		Proxy:           proxy,
+		APIServer:       apiServer,
+		AllowFrom:       ic.AllowFrom,
+		DMPolicy:        ic.DMPolicy,
+		GroupPolicy:     ic.GroupPolicy,
+		RequireMention:  ic.RequireMention,
+		HistoryLimit:    ic.HistoryLimit,
 		DMStream:        ic.DMStream,
 		GroupStream:     ic.GroupStream,
 		DraftTransport:  ic.DraftTransport,
 		ReasoningStream: ic.ReasoningStream,
 		ReactionLevel:   ic.ReactionLevel,
-		MediaMaxBytes:  resolveMediaMaxBytes(ic),
-		LinkPreview:    ic.LinkPreview,
-		BlockReply:     ic.BlockReply,
+		MediaMaxBytes:   resolveMediaMaxBytes(ic),
+		LinkPreview:     ic.LinkPreview,
+		BlockReply:      ic.BlockReply,
 	}
 
 	// DB instances default to "pairing" for groups (secure by default).

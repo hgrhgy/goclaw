@@ -103,11 +103,11 @@ func TestIndexSearch(t *testing.T) {
 	idx.Build(skills)
 
 	tests := []struct {
-		name         string
-		query        string
-		maxResults   int
-		expectCount  int
-		expectFirst  string
+		name        string
+		query       string
+		maxResults  int
+		expectCount int
+		expectFirst string
 	}{
 		{
 			name:        "search container",
