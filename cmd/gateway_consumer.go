@@ -199,10 +199,11 @@ func consumeInboundMessages(ctx context.Context, msgBus *bus.MessageBus, agents 
 		// so block.reply handler can use it for routing intermediate messages.
 		outMeta := make(map[string]string)
 		// Add agent display name to metadata for channel messages
-		if agentLoop, ok := agentLoop.(interface{ DisplayName() string }); ok {
-			if name := agentLoop.DisplayName(); name != "" {
-				outMeta["agent_name"] = name
-			}
+		// Agent interface already has DisplayName() method, use it directly
+		if name := agentLoop.DisplayName(); name != "" {
+			outMeta["agent_name"] = name
+		} else {
+			slog.Debug("agent display name is empty", "agent_id", agentID)
 		}
 		if isGroup {
 			if mid := msg.Metadata["message_id"]; mid != "" {

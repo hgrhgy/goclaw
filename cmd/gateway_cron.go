@@ -17,13 +17,21 @@ import (
 // makeCronJobHandler creates a cron job handler that routes through the scheduler's cron lane.
 // This ensures per-session concurrency control (same job can't run concurrently)
 // and integration with /stop, /stopall commands.
-func makeCronJobHandler(sched *scheduler.Scheduler, msgBus *bus.MessageBus, cfg *config.Config, channelMgr *channels.Manager) func(job *store.CronJob) (*store.CronJobResult, error) {
+func makeCronJobHandler(sched *scheduler.Scheduler, msgBus *bus.MessageBus, cfg *config.Config, channelMgr *channels.Manager, agentStore store.AgentStore) func(job *store.CronJob) (*store.CronJobResult, error) {
 	return func(job *store.CronJob) (*store.CronJobResult, error) {
 		agentID := job.AgentID
 		if agentID == "" {
 			agentID = cfg.ResolveDefaultAgentID()
 		} else {
 			agentID = config.NormalizeAgentID(agentID)
+		}
+
+		// Get agent display name for message prefix
+		var agentName string
+		if agentStore != nil {
+			if agentData, err := agentStore.GetByKey(context.Background(), agentID); err == nil && agentData != nil {
+				agentName = agentData.DisplayName
+			}
 		}
 
 		sessionKey := sessions.BuildCronSessionKey(agentID, job.ID)
@@ -83,9 +91,10 @@ func makeCronJobHandler(sched *scheduler.Scheduler, msgBus *bus.MessageBus, cfg 
 		// If job wants delivery to a channel, send the agent response to the target chat.
 		if job.Payload.Deliver && job.Payload.Channel != "" && job.Payload.To != "" {
 			outMsg := bus.OutboundMessage{
-				Channel: job.Payload.Channel,
-				ChatID:  job.Payload.To,
-				Content: result.Content,
+				Channel:   job.Payload.Channel,
+				ChatID:    job.Payload.To,
+				Content:   result.Content,
+				AgentName: agentName,
 			}
 			if peerKind == "group" {
 				outMsg.Metadata = map[string]string{"group_id": job.Payload.To}
