@@ -7,6 +7,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -14,6 +16,40 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
+
+// httpClient is an HTTP client that respects system proxy environment variables.
+// This is needed for environments where direct access to external APIs requires a proxy.
+func newHTTPClient() *http.Client {
+	proxyURL := os.Getenv("https_proxy")
+	if proxyURL == "" {
+		proxyURL = os.Getenv("HTTPS_PROXY")
+	}
+	if proxyURL == "" {
+		proxyURL = os.Getenv("ALL_PROXY")
+	}
+	if proxyURL == "" {
+		proxyURL = os.Getenv("all_proxy")
+	}
+
+	var proxyFunc func(*http.Request) (*url.URL, error)
+	if proxyURL != "" {
+		u, err := url.Parse(proxyURL)
+		if err != nil {
+			slog.Warn("failed to parse proxy URL", "proxy", proxyURL, "error", err)
+		} else {
+			slog.Info("using proxy for model list", "proxy", proxyURL)
+			proxyFunc = http.ProxyURL(u)
+		}
+	}
+
+	return &http.Client{
+		Transport: &http.Transport{
+			Proxy: proxyFunc,
+		},
+	}
+}
+
+var httpClient = newHTTPClient()
 
 // ModelInfo is a normalized model entry returned by the list-models endpoint.
 type ModelInfo struct {
@@ -116,7 +152,7 @@ func fetchAnthropicModels(ctx context.Context, apiKey, apiBase string) ([]ModelI
 	req.Header.Set("x-api-key", apiKey)
 	req.Header.Set("anthropic-version", "2023-06-01")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +188,7 @@ func fetchGeminiModels(ctx context.Context, apiKey string) ([]ModelInfo, error) 
 		return nil, err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +308,7 @@ func fetchOpenAIModels(ctx context.Context, apiBase, apiKey string) ([]ModelInfo
 	}
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
