@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import { WsClient, type ConnectionState } from "@/api/ws-client";
 import { HttpClient } from "@/api/http-client";
 import { WsContext } from "@/hooks/use-ws";

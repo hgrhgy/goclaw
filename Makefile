@@ -1,6 +1,8 @@
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 LDFLAGS  = -s -w -X github.com/nextlevelbuilder/goclaw/cmd.Version=$(VERSION)
 BINARY   = goclaw
+PATH     := $(shell go env GOPATH)/bin:$(PATH)
+export PATH
 
 .PHONY: build run clean version net up down logs reset test vet lint check-web dev migrate setup ci
 
@@ -43,7 +45,7 @@ vet:
 	go vet ./...
 
 lint:
-	golangci-lint run ./...
+	$(shell go env GOPATH)/bin/golangci-lint run ./...
 
 check-web:
 	cd ui/web && pnpm install --frozen-lockfile && pnpm build
